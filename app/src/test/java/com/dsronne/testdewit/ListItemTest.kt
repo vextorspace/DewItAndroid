@@ -41,4 +41,18 @@ class ListItemTest {
             listItem.label()
         )
     }
+
+    @Test
+    fun addChildrenOrderIsPreserved() {
+        val parent = ListItem()
+        val firstChild = ListItem()
+        val secondChild = ListItem()
+        parent.add(firstChild)
+        parent.add(secondChild)
+        assertEquals(
+            "Expected second child to be last in children list",
+            secondChild,
+            parent.children.last()
+        )
+    }
 }
