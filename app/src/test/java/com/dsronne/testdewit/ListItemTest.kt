@@ -20,6 +20,17 @@ class ListItemTest {
     }
 
     @Test
+    fun addChildAddsToChildren() {
+        val parent = ListItem()
+        val child = ListItem()
+        parent.add(child)
+        assertTrue(
+            "Expected children to contain the added child",
+            parent.children.contains(child)
+        )
+    }
+
+    @Test
     fun labelReturnsItemLabel() {
         val label = "test label"
         val item = Item(label)

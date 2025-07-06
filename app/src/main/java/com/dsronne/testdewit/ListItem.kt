@@ -12,4 +12,15 @@ data class ListItem(
      * Returns the wrapped item's label.
      */
     fun label(): String = data.label
+    /**
+     * Child list items nested under this item.
+     */
+    val children: MutableList<ListItem> = mutableListOf()
+
+    /**
+     * Adds a child list item under this item.
+     */
+    fun add(child: ListItem) {
+        children.add(child)
+    }
 }
