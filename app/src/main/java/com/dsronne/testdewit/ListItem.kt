@@ -7,3 +7,9 @@ package com.dsronne.testdewit
 data class ListItem(
     val data: Item = Item("new item")
 )
+{
+    /**
+     * Returns the wrapped item's label.
+     */
+    fun label(): String = data.label
+}
