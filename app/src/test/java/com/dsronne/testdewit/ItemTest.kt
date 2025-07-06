@@ -10,4 +10,12 @@ class ItemTest {
         val item = Item(text)
         assertEquals(text, item.label)
     }
+
+    @Test
+    fun itemIdReturnsSecondConstructorValue() {
+        val label = "label"
+        val id = "identifier"
+        val item = Item(label, id)
+        assertEquals(id, item.id)
+    }
 }
