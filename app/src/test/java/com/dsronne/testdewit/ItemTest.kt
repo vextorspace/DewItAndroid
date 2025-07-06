@@ -1,6 +1,7 @@
 package com.dsronne.testdewit
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.Test
 
 class ItemTest {
@@ -24,5 +25,13 @@ class ItemTest {
         val item1 = Item("first", id)
         val item2 = Item("second", id)
         assertEquals(item1, item2)
+    }
+
+    @Test
+    fun itemsCreatedWithSameLabelHaveDifferentIds() {
+        val label = "same-label"
+        val item1 = Item(label)
+        val item2 = Item(label)
+        assertNotEquals(item1.id, item2.id)
     }
 }
