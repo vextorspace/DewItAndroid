@@ -55,4 +55,13 @@ class ItemStoreTest {
         // Then
         verify(exactly = items.size) { repository.save(any()) }
     }
+
+    @Test
+    fun `there is a root item in an item store with id and label root`() {
+        every { repository.findById("root")} returns ListItem(Item("root", "root"))
+        val itemStore = ItemStore(repository)
+        assertEquals(ListItem(Item("root", "root")), itemStore.root())
+
+        verify(exactly = 1) { repository.findById("root")}
+    }
 }
