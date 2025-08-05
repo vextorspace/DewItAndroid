@@ -21,12 +21,12 @@ data class ListItem(
     /**
      * Child list items nested under this item.
      */
-    val children: MutableList<ListItem> = mutableListOf()
+    val children: MutableList<String> = mutableListOf()
 
     /**
      * Adds a child list item under this item.
      */
     fun add(child: ListItem) {
-        children.add(child)
+        children.add(child.id)
     }
 }

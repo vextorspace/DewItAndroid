@@ -5,9 +5,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-/**
- * Verifies that a ListItem created without arguments has a default data field of type Item.
- */
 class ListItemTest {
     @Test
     fun defaultConstructorProvidesDefaultData() {
@@ -20,13 +17,13 @@ class ListItemTest {
     }
 
     @Test
-    fun addChildAddsToChildren() {
+    fun addChildAddsChildId() {
         val parent = ListItem()
         val child = ListItem()
         parent.add(child)
         assertTrue(
-            "Expected children to contain the added child",
-            parent.children.contains(child)
+            "Expected children to contain the added child's id",
+            parent.children.contains(child.id)
         )
     }
 
@@ -43,15 +40,15 @@ class ListItemTest {
     }
 
     @Test
-    fun addChildrenOrderIsPreserved() {
+    fun addChildrenIdsOrderIsPreserved() {
         val parent = ListItem()
         val firstChild = ListItem()
         val secondChild = ListItem()
         parent.add(firstChild)
         parent.add(secondChild)
         assertEquals(
-            "Expected second child to be last in children list",
-            secondChild,
+            "Expected second child's id to be last in children list",
+            secondChild.id,
             parent.children.last()
         )
     }
@@ -60,7 +57,6 @@ class ListItemTest {
     fun idReturnsItemId() {
         val item = Item("test")
         val listItem = ListItem(item)
-
         assertEquals("listItem's id should be the same as items", item.id, listItem.id)
     }
 }
