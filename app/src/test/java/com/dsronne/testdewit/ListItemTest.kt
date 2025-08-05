@@ -55,4 +55,12 @@ class ListItemTest {
             parent.children.last()
         )
     }
+
+    @Test
+    fun idReturnsItemId() {
+        val item = Item("test")
+        val listItem = ListItem(item)
+
+        assertEquals("listItem's id should be the same as items", item.id, listItem.id)
+    }
 }

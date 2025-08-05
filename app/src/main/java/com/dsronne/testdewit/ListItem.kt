@@ -6,12 +6,18 @@ package com.dsronne.testdewit
  */
 data class ListItem(
     val data: Item = Item("new item")
-)
-{
+) {
     /**
      * Returns the wrapped item's label.
      */
     fun label(): String = data.label
+
+    /**
+     * Returns the wrapped item's id.
+     */
+    val id: String
+        get() = data.id
+
     /**
      * Child list items nested under this item.
      */
