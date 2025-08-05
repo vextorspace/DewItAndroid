@@ -13,4 +13,10 @@ class ItemStoreTest {
 
         assertEquals(listItem, itemStore.find(item.id))
     }
+
+    @Test
+    fun itemStoreReturnsNullForUnknownId() {
+        val itemStore = ItemStore(emptyList())
+        assertEquals(null, itemStore.find("unknown-id"))
+    }
 }
