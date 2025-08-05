@@ -1,25 +1,21 @@
-package com.dsronne.testdewit
+package com.dsronne.testdewit.domain
 
-/**
- * A store that manages ListItems and allows finding them by their item IDs.
- */
-class ItemStore(items: List<ListItem>) {
-    private val _items = items.toMutableList()
+import com.dsronne.testdewit.ListItem
+import com.dsronne.testdewit.domain.ports.ItemRepository
 
-    /**
-     * Finds a ListItem by its item's ID.
-     * @param id The ID of the item to find
-     * @return The matching ListItem or null if not found
-     */
-    fun find(id: String): ListItem? {
-        return _items.find { it.id == id }
+class ItemStore(
+    private val repository: ItemRepository,
+    items: List<ListItem> = emptyList()
+) {
+    init {
+        items.forEach { repository.save(it) }
     }
 
-    /**
-     * Adds a new ListItem to the store.
-     * @param item The ListItem to add
-     */
+    fun find(id: String): ListItem? {
+        return repository.findById(id)
+    }
+
     fun add(item: ListItem) {
-        _items.add(item)
+        repository.save(item)
     }
 }
