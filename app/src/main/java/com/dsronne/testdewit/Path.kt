@@ -28,4 +28,8 @@ class Path(private val segments: List<ItemId> = listOf(ItemId("root"))) {
     override fun toString(): String {
         return segments.joinToString("/")
     }
+
+    operator fun plus(itemId: ItemId): Path = Path(segments + itemId)
+
+    fun parent(): Path = Path(segments.dropLast(1))
 }
