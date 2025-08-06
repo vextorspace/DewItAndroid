@@ -18,4 +18,8 @@ class InMemoryItemRepository : ItemRepository {
     override fun findAll(): List<ListItem> {
         return items.values.toList()
     }
+
+    override fun update(item: ListItem) {
+        save(item)
+    }
 }

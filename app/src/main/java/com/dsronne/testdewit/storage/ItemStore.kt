@@ -5,17 +5,22 @@ import com.dsronne.testdewit.viewports.ItemBrowser
 import com.dsronne.testdewit.datamodel.ItemId
 import com.dsronne.testdewit.datamodel.ListItem
 import com.dsronne.testdewit.domain.ports.ItemRepository
+import com.dsronne.testdewit.viewports.ItemEditor
 
 class ItemStore(
     private val repository: ItemRepository,
     items: List<ListItem> = emptyList()
-) : ItemBrowser {
+) : ItemBrowser, ItemEditor {
     init {
         items.forEach { repository.save(it) }
     }
 
-    fun add(item: ListItem) {
-        repository.save(item)
+    override fun add(newItem: ListItem) {
+        repository.save(newItem)
+    }
+
+    override fun edit(changedItem: ListItem) {
+        repository.update(changedItem)
     }
 
     override fun find(id: ItemId): ListItem? {
