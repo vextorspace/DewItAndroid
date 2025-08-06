@@ -12,7 +12,7 @@ class InMemoryItemRepository : ItemRepository {
         items[item.id] = item
     }
 
-    override fun findById(id: ItemId): ListItem? {
+    override fun find(id: ItemId): ListItem? {
         return items[id]
     }
 

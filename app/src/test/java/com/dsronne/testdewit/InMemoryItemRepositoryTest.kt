@@ -15,13 +15,13 @@ class InMemoryItemRepositoryTest {
         
         repository.save(item)
         
-        val loaded = repository.findById(item.id)
+        val loaded = repository.find(item.id)
         assertEquals(item, loaded)
     }
 
     @Test
-    fun findByIdShouldReturnNullForNonExistentItem() {
-        val loaded = repository.findById(ItemId("non-existent-id"))
+    fun findShouldReturnNullForNonExistentItem() {
+        val loaded = repository.find(ItemId("non-existent-id"))
         assertNull(loaded)
     }
 

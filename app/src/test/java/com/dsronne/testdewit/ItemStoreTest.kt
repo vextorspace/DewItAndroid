@@ -31,14 +31,14 @@ class ItemStoreTest {
     fun `should return item when finding by id`() {
         // Given
         val listItem = ListItem(Item("test"))
-        every { repository.findById(listItem.id) } returns listItem
+        every { repository.find(listItem.id) } returns listItem
 
         // When
         val result = itemStore.find(listItem.id)
 
         // Then
         assertEquals(listItem, result)
-        verify { repository.findById(listItem.id) }
+        verify { repository.find(listItem.id) }
     }
 
     @Test
@@ -59,10 +59,33 @@ class ItemStoreTest {
 
     @Test
     fun `there is a root item in an item store with id and label root`() {
-        every { repository.findById(ItemId("root"))} returns ListItem(Item("root", ItemId("root")))
+        every { repository.find(ItemId("root"))} returns ListItem(Item("root", ItemId("root")))
         val itemStore = ItemStore(repository)
         assertEquals(ListItem(Item("root", ItemId("root"))), itemStore.root())
 
-        verify(exactly = 1) { repository.findById(ItemId("root"))}
+        verify(exactly = 1) { repository.find(ItemId("root"))}
+    }
+
+    @Test
+    fun `getChildrenAtPath should return children of item at path`() {
+        // Given
+        val parent = ListItem(Item("parent", ItemId("parent")))
+        val child1 = ListItem(Item("child1", ItemId("child1")))
+        val child2 = ListItem(Item("child2", ItemId("child2")))
+        parent.add(child1)
+        parent.add(child2)
+        
+        every { repository.find(ItemId("parent")) } returns parent
+        every { repository.find(ItemId("child1")) } returns child1
+        every { repository.find(ItemId("child2")) } returns child2
+
+        // When
+        val children = itemStore.getChildrenOf(ItemId("parent"))
+
+        // Then
+        assertEquals(listOf(child1, child2), children)
+        verify { repository.find(ItemId("parent")) }
+        verify { repository.find(ItemId("child1")) }
+        verify { repository.find(ItemId("child2")) }
     }
 }
