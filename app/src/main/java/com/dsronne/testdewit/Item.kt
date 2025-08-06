@@ -16,7 +16,7 @@ import java.util.UUID
  */
 data class Item(
     val label: String,
-    val id: String = UUID.randomUUID().toString()
+    val id: ItemId = ItemId()
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

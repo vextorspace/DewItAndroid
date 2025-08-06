@@ -1,6 +1,7 @@
 package com.dsronne.testdewit.domain
 
 import com.dsronne.testdewit.Item
+import com.dsronne.testdewit.ItemId
 import com.dsronne.testdewit.ListItem
 import com.dsronne.testdewit.domain.ports.ItemRepository
 import io.mockk.every
@@ -58,10 +59,10 @@ class ItemStoreTest {
 
     @Test
     fun `there is a root item in an item store with id and label root`() {
-        every { repository.findById("root")} returns ListItem(Item("root", "root"))
+        every { repository.findById(ItemId("root"))} returns ListItem(Item("root", ItemId("root")))
         val itemStore = ItemStore(repository)
-        assertEquals(ListItem(Item("root", "root")), itemStore.root())
+        assertEquals(ListItem(Item("root", ItemId("root"))), itemStore.root())
 
-        verify(exactly = 1) { repository.findById("root")}
+        verify(exactly = 1) { repository.findById(ItemId("root"))}
     }
 }

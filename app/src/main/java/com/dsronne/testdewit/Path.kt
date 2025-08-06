@@ -1,13 +1,13 @@
 package com.dsronne.testdewit
 
-class Path(private val segments: List<String> = listOf("root")) {
+class Path(private val segments: List<ItemId> = listOf(ItemId("root"))) {
     init {
-        require(segments.isNotEmpty() && segments.first() == "root") {
+        require(segments.isNotEmpty() && segments.first() == ItemId("root")) {
             "Path must start with 'root'"
         }
     }
 
-    operator fun get(index: Int): String = segments[index]
+    operator fun get(index: Int): ItemId = segments[index]
 
     fun size(): Int = segments.size
 

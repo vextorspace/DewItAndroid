@@ -8,6 +8,6 @@ class PathTest {
     @Test
     fun `empty path is root`() {
         val path = Path()
-        assertEquals("root", path[0])
+        assertEquals(ItemId("root"), path[0])
     }
 }

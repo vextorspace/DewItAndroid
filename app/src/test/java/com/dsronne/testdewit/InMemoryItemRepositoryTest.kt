@@ -1,6 +1,7 @@
 package com.dsronne.testdewit.infrastructure
 
 import com.dsronne.testdewit.Item
+import com.dsronne.testdewit.ItemId
 import com.dsronne.testdewit.ListItem
 import org.junit.Assert.*
 import org.junit.Test
@@ -20,7 +21,7 @@ class InMemoryItemRepositoryTest {
 
     @Test
     fun findByIdShouldReturnNullForNonExistentItem() {
-        val loaded = repository.findById("non-existent-id")
+        val loaded = repository.findById(ItemId("non-existent-id"))
         assertNull(loaded)
     }
 

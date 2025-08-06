@@ -10,9 +10,9 @@ class ListItemTest {
     fun defaultConstructorProvidesDefaultData() {
         val listItem = ListItem()
         assertNotNull("Expected default data to be non-null", listItem.data)
-        assertTrue(
+        assertNotNull(
             "Expected default data to be an Item instance",
-            listItem.data is Item
+            listItem.data
         )
     }
 

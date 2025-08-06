@@ -15,13 +15,13 @@ data class ListItem(
     /**
      * Returns the wrapped item's id.
      */
-    val id: String
+    val id: ItemId
         get() = data.id
 
     /**
      * Child list items nested under this item.
      */
-    val children: MutableList<String> = mutableListOf()
+    val children: MutableList<ItemId> = mutableListOf()
 
     /**
      * Adds a child list item under this item.
