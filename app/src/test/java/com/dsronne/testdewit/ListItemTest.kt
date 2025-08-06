@@ -1,5 +1,7 @@
 package com.dsronne.testdewit
 
+import com.dsronne.testdewit.datamodel.Item
+import com.dsronne.testdewit.datamodel.ListItem
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.assertEquals

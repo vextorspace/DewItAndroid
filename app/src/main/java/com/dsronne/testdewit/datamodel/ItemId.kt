@@ -1,4 +1,4 @@
-package com.dsronne.testdewit
+package com.dsronne.testdewit.datamodel
 
 import java.util.UUID
 

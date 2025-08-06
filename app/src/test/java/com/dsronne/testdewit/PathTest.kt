@@ -1,6 +1,7 @@
 package com.dsronne.testdewit
 
-import androidx.core.graphics.plus
+import com.dsronne.testdewit.datamodel.ItemId
+import com.dsronne.testdewit.datamodel.Path
 import org.junit.Test
 import org.junit.Assert.assertEquals
 

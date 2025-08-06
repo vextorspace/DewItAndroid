@@ -1,8 +1,9 @@
 package com.dsronne.testdewit.infrastructure
 
-import com.dsronne.testdewit.Item
-import com.dsronne.testdewit.ItemId
-import com.dsronne.testdewit.ListItem
+import com.dsronne.testdewit.datamodel.Item
+import com.dsronne.testdewit.datamodel.ItemId
+import com.dsronne.testdewit.datamodel.ListItem
+import com.dsronne.testdewit.storage.InMemoryItemRepository
 import org.junit.Assert.*
 import org.junit.Test
 

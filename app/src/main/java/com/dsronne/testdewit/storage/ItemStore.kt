@@ -1,9 +1,9 @@
-package com.dsronne.testdewit.domain
+package com.dsronne.testdewit.storage
 
-import com.dsronne.testdewit.Item
-import com.dsronne.testdewit.ItemBrowser
-import com.dsronne.testdewit.ItemId
-import com.dsronne.testdewit.ListItem
+import com.dsronne.testdewit.datamodel.Item
+import com.dsronne.testdewit.viewports.ItemBrowser
+import com.dsronne.testdewit.datamodel.ItemId
+import com.dsronne.testdewit.datamodel.ListItem
 import com.dsronne.testdewit.domain.ports.ItemRepository
 
 class ItemStore(

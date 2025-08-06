@@ -1,9 +1,10 @@
 package com.dsronne.testdewit.domain
 
-import com.dsronne.testdewit.Item
-import com.dsronne.testdewit.ItemId
-import com.dsronne.testdewit.ListItem
+import com.dsronne.testdewit.datamodel.Item
+import com.dsronne.testdewit.datamodel.ItemId
+import com.dsronne.testdewit.datamodel.ListItem
 import com.dsronne.testdewit.domain.ports.ItemRepository
+import com.dsronne.testdewit.storage.ItemStore
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify

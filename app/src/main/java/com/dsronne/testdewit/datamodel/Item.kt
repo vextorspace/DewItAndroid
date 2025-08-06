@@ -1,4 +1,4 @@
-package com.dsronne.testdewit
+package com.dsronne.testdewit.datamodel
 
 /**
  * Simple domain model representing an item with a text label.
@@ -7,7 +7,6 @@ package com.dsronne.testdewit
  * Represents an item with a text label and an optional identifier.
  * Two items are considered equal if they share the same identifier.
  */
-import java.util.UUID
 
 /**
  * Represents an item with a text label and a unique identifier.

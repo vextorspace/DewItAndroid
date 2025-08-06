@@ -1,8 +1,7 @@
+package com.dsronne.testdewit.storage
 
-package com.dsronne.testdewit.infrastructure
-
-import com.dsronne.testdewit.ItemId
-import com.dsronne.testdewit.ListItem
+import com.dsronne.testdewit.datamodel.ItemId
+import com.dsronne.testdewit.datamodel.ListItem
 import com.dsronne.testdewit.domain.ports.ItemRepository
 
 class InMemoryItemRepository : ItemRepository {
