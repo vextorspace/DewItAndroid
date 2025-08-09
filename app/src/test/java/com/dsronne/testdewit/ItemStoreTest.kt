@@ -5,6 +5,7 @@ import com.dsronne.testdewit.datamodel.ItemId
 import com.dsronne.testdewit.datamodel.ListItem
 import com.dsronne.testdewit.domain.ports.ItemRepository
 import com.dsronne.testdewit.storage.ItemStore
+import com.dsronne.testdewit.storage.InMemoryItemRepository
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -88,5 +89,17 @@ class ItemStoreTest {
         verify { repository.find(ItemId("parent")) }
         verify { repository.find(ItemId("child1")) }
         verify { repository.find(ItemId("child2")) }
+    }
+    @Test
+    fun `program management test`() {
+        val repository = InMemoryItemRepository()
+        val itemStore = ItemStore(repository)
+
+        itemStore.initProgramManagement()
+
+        val root = repository.find(ItemId("root"))!!
+        val childLabels = root.children.map { repository.find(it)!!.label() }
+        val expected = listOf("inbox", "todo", "projects", "waiting", "someday", "references")
+        assertEquals(expected, childLabels)
     }
 }
