@@ -23,6 +23,7 @@ class MainActivity : AppCompatActivity() {
 
         val repository = InMemoryItemRepository()
         val itemStore = ItemStore(repository)
+        itemStore.initProgramManagement()
         val rootChildren = itemStore.getChildrenOf(itemStore.root().id)
 
         val viewPager = findViewById<ViewPager2>(R.id.view_pager)
