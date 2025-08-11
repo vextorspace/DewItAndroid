@@ -42,12 +42,20 @@ class ItemStore(
      */
     fun initProgramManagement() {
         val categories = listOf("inbox", "todo", "projects", "waiting", "someday", "references")
+
         val rootItem = root()
         categories.forEach { label ->
-            val child = ListItem(Item(label))
+            val child = ListItem(Item(label, ItemId(label)))
             add(child)
             rootItem.add(child)
         }
         edit(rootItem)
+        val inbox = find(ItemId("inbox"))
+        val testItem = ListItem(Item("delete me"))
+        add(testItem)
+        inbox?.let {
+            it.add(testItem)
+            edit(it)
+        }
     }
 }

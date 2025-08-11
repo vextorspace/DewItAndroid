@@ -27,6 +27,6 @@ class MainActivity : AppCompatActivity() {
         val rootChildren = itemStore.getChildrenOf(itemStore.root().id)
 
         val viewPager = findViewById<ViewPager2>(R.id.view_pager)
-        viewPager.adapter = ItemPagerAdapter(this, rootChildren)
+        viewPager.adapter = ItemPagerAdapter(this, rootChildren, itemStore)
     }
 }
