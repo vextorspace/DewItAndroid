@@ -118,15 +118,37 @@ class ItemFragment(private val itemStore: ItemStore) : Fragment() {
         val editButton = itemView.findViewById<ImageButton>(R.id.button_edit_item)
         val subContainer = itemView.findViewById<LinearLayout>(R.id.children_container)
 
+        bindChildLabel(labelView, item)
+        bindAddChildButton(addChildButton, item, subContainer, itemView)
+        bindEditButton(editButton, labelView, itemView, item)
+        bindRemoveButton(removeButton, parentContainer, parentItem, itemView, item)
+        bindChildItems(subContainer, item)
+    }
+
+    private fun bindChildLabel(labelView: TextView, item: ListItem) {
         labelView.text = item.label()
+    }
 
-        addChildButton.setOnClickListener {
-            addChildTo(item, subContainer, itemView)
+    private fun bindAddChildButton(
+        button: ImageButton,
+        item: ListItem,
+        container: LinearLayout,
+        hostView: View
+    ) {
+        button.setOnClickListener {
+            addChildTo(item, container, hostView)
         }
+    }
 
-        editButton.setOnClickListener {
+    private fun bindEditButton(
+        button: ImageButton,
+        labelView: TextView,
+        itemView: View,
+        item: ListItem
+    ) {
+        button.setOnClickListener {
             // Toggle editing: if an EditText is already present, finish editing
-            val row = (labelView.parent ?: editButton.parent) as ViewGroup
+            val row = (labelView.parent ?: button.parent) as ViewGroup
             val editIndex = (0 until row.childCount).firstOrNull { row.getChildAt(it) is EditText } ?: -1
             if (editIndex != -1) {
                 val existingEditor = row.getChildAt(editIndex) as EditText
@@ -149,7 +171,8 @@ class ItemFragment(private val itemStore: ItemStore) : Fragment() {
             row.addView(editText, index)
             val imm = itemView.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT)
-            editText.setOnFocusChangeListener { _, hasFocus -> if (!hasFocus) {
+            editText.setOnFocusChangeListener { _, hasFocus ->
+                if (!hasFocus) {
                     val newLabel = editText.text.toString()
                     commitEdit(row, labelView, itemView, item, newLabel, index)
                 }
@@ -164,15 +187,25 @@ class ItemFragment(private val itemStore: ItemStore) : Fragment() {
                 }
             }
         }
+    }
 
-        removeButton.setOnClickListener {
+    private fun bindRemoveButton(
+        button: ImageButton,
+        parentContainer: LinearLayout,
+        parentItem: ListItem,
+        itemView: View,
+        item: ListItem
+    ) {
+        button.setOnClickListener {
             parentItem.children.remove(item.id)
             itemStore.edit(parentItem)
             parentContainer.removeView(itemView)
         }
+    }
 
-        itemStore.getChildrenOf(item.id).forEach { child ->
-            subContainer.addView(createItemView(child, subContainer, item))
+    private fun bindChildItems(container: LinearLayout, parentItem: ListItem) {
+        itemStore.getChildrenOf(parentItem.id).forEach { child ->
+            container.addView(createItemView(child, container, parentItem))
         }
     }
 }

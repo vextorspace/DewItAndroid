@@ -16,7 +16,6 @@ This is an android app that primarily manages lists
 ### We believe in descriptive names and good organization over large comments
 
 ## Todo
-- extract well-named methods from bindChildView
 - adopt View Binding (or Kotlin Android extensions) instead of manual findViewById
 - use RecyclerView with a tree-capable adapter (4b)
 - maybe instead of Recycle View extract custom TreeView/NestedListView component (4c)
