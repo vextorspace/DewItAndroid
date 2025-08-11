@@ -1,0 +1,16 @@
+# DewIt App
+This is an android app that primarily manages lists
+## Model
+### There is a root item that is not displayed
+### Items have children that are also items
+### Items have unique ids
+### Items can be children of multiple items
+## View
+### Item views are generated on the fly
+### Top level is a swiping left and right kind of view where each root child item has its own screen
+### The Item's children are then listed under the item and are themselves views so they have the same tools and can have children
+## Storage
+### We are currently working with an in memory storage system but will change to a data-base one that can be synced remotely
+## Development
+### We dont worry about automated tests for the UI but we do test the internal logic.
+### We believe in descriptive names and good organization over large comments

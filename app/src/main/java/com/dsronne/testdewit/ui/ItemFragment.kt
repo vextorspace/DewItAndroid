@@ -14,6 +14,10 @@ import com.dsronne.testdewit.datamodel.ListItem
 import com.dsronne.testdewit.datamodel.ItemId
 import com.dsronne.testdewit.storage.ItemStore
 import com.google.android.material.snackbar.Snackbar
+import android.widget.EditText
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
+import android.content.Context
 
 class ItemFragment(private val itemStore: ItemStore) : Fragment() {
     private lateinit var currentItem: ListItem
@@ -80,10 +84,42 @@ class ItemFragment(private val itemStore: ItemStore) : Fragment() {
         }
 
         editButton.setOnClickListener {
-            item.data.label = "edited"
-            itemStore.edit(item)
-            labelView.text = item.label()
-            Snackbar.make(itemView, "Edited '${item.label()}'", Snackbar.LENGTH_SHORT).show()
+            val parent = labelView.parent as ViewGroup
+            val index = parent.indexOfChild(labelView)
+            parent.removeView(labelView)
+            val editText = EditText(itemView.context).apply {
+                setText(item.label())
+                layoutParams = labelView.layoutParams
+                textSize = labelView.textSize / labelView.resources.displayMetrics.scaledDensity
+                typeface = labelView.typeface
+                requestFocus()
+                setSelectAllOnFocus(true)
+                imeOptions = EditorInfo.IME_ACTION_DONE
+            }
+            parent.addView(editText, index)
+            val imm = itemView.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT)
+
+            fun finishEditing() {
+                val newLabel = editText.text.toString()
+                item.data.label = newLabel
+                itemStore.edit(item)
+                parent.removeView(editText)
+                parent.addView(labelView, index)
+                labelView.text = newLabel
+                Snackbar.make(itemView, "Edited '$newLabel'", Snackbar.LENGTH_SHORT).show()
+                imm.hideSoftInputFromWindow(labelView.windowToken, 0)
+            }
+
+            editText.setOnFocusChangeListener { _, hasFocus -> if (!hasFocus) finishEditing() }
+            editText.setOnEditorActionListener { _, actionId, _ ->
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    finishEditing()
+                    true
+                } else {
+                    false
+                }
+            }
         }
 
         removeButton.setOnClickListener {
