@@ -41,7 +41,10 @@ class ItemFragment(private val itemStore: ItemStore) : Fragment() {
         val childrenContainer = view.findViewById<LinearLayout>(R.id.children_container)
 
         fun createItemView(item: ListItem): View {
-            val itemView = layoutInflater.inflate(R.layout.fragment_item, childrenContainer, false)
+            val itemView = layoutInflater.inflate(R.layout.fragment_item, childrenContainer, false).also {
+                // remove outer padding inherited from fragment_item root so nested items only indent on the left
+                it.setPadding(0, 0, 0, 0)
+            }
             val labelView = itemView.findViewById<TextView>(R.id.text_label)
             val addChildButton = itemView.findViewById<ImageButton>(R.id.button_add_child)
             val subContainer = itemView.findViewById<LinearLayout>(R.id.children_container)
