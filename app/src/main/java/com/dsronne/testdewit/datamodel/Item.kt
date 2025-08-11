@@ -14,7 +14,7 @@ package com.dsronne.testdewit.datamodel
  * Two items are considered equal if they share the same identifier.
  */
 data class Item(
-    val label: String,
+    var label: String,
     val id: ItemId = ItemId()
 ) {
     override fun equals(other: Any?): Boolean {

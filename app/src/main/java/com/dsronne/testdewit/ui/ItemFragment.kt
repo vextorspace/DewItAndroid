@@ -70,12 +70,20 @@ class ItemFragment(private val itemStore: ItemStore) : Fragment() {
         val labelView = itemView.findViewById<TextView>(R.id.text_label)
         val addChildButton = itemView.findViewById<ImageButton>(R.id.button_add_child)
         val removeButton = itemView.findViewById<ImageButton>(R.id.button_remove_item)
+        val editButton = itemView.findViewById<ImageButton>(R.id.button_edit_item)
         val subContainer = itemView.findViewById<LinearLayout>(R.id.children_container)
 
         labelView.text = item.label()
 
         addChildButton.setOnClickListener {
             addChildTo(item, subContainer, itemView)
+        }
+
+        editButton.setOnClickListener {
+            item.data.label = "edited"
+            itemStore.edit(item)
+            labelView.text = item.label()
+            Snackbar.make(itemView, "Edited '${item.label()}'", Snackbar.LENGTH_SHORT).show()
         }
 
         removeButton.setOnClickListener {
