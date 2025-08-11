@@ -40,49 +40,43 @@ class ItemFragment(private val itemStore: ItemStore) : Fragment() {
         val addButton = view.findViewById<ImageButton>(R.id.button_add_child)
         val childrenContainer = view.findViewById<LinearLayout>(R.id.children_container)
 
-        fun createItemView(item: ListItem): View {
-            val itemView = layoutInflater.inflate(R.layout.fragment_item, childrenContainer, false).also {
-                // remove outer padding inherited from fragment_item root so nested items only indent on the left
-                it.setPadding(0, 0, 0, 0)
-            }
-            val labelView = itemView.findViewById<TextView>(R.id.text_label)
-            val addChildButton = itemView.findViewById<ImageButton>(R.id.button_add_child)
-            val subContainer = itemView.findViewById<LinearLayout>(R.id.children_container)
-
-            labelView.text = item.label()
-
-            fun refreshSubItems() {
-                subContainer.removeAllViews()
-                itemStore.getChildrenOf(item.id).forEach { child ->
-                    subContainer.addView(createItemView(child))
-                }
-            }
-
-            addChildButton.setOnClickListener {
-                val childItem = ListItem(Item("new item"))
-                itemStore.add(childItem)
-                item.add(childItem)
-                itemStore.edit(item)
-                Snackbar.make(itemView, "Added child '${childItem.label()}'", Snackbar.LENGTH_SHORT).show()
-                refreshSubItems()
-            }
-
-            refreshSubItems()
-            return itemView
-        }
-
         addButton.setOnClickListener {
-            val child = ListItem(Item("new item"))
-            itemStore.add(child)
-            currentItem.add(child)
-            itemStore.edit(currentItem)
-            Snackbar.make(view, "Added child '${child.label()}'", Snackbar.LENGTH_SHORT).show()
-            childrenContainer.addView(createItemView(child))
+            addChildTo(currentItem, childrenContainer, view)
         }
 
         itemStore.getChildrenOf(currentItem.id).forEach { child ->
-            childrenContainer.addView(createItemView(child))
+            childrenContainer.addView(createItemView(child, childrenContainer))
         }
+    }
+
+    private fun addChildTo(parent: ListItem, container: LinearLayout, hostView: View) {
+        val child = ListItem(Item("new item"))
+        itemStore.add(child)
+        parent.add(child)
+        itemStore.edit(parent)
+        Snackbar.make(hostView, "Added child '${child.label()}'", Snackbar.LENGTH_SHORT).show()
+        container.addView(createItemView(child, container))
+    }
+
+    private fun createItemView(item: ListItem, parentContainer: LinearLayout): View {
+        val itemView = layoutInflater.inflate(R.layout.fragment_item, parentContainer, false).also {
+            // remove outer padding inherited from fragment_item root so nested items only indent on the left
+            it.setPadding(0, 0, 0, 0)
+        }
+        val labelView = itemView.findViewById<TextView>(R.id.text_label)
+        val addChildButton = itemView.findViewById<ImageButton>(R.id.button_add_child)
+        val subContainer = itemView.findViewById<LinearLayout>(R.id.children_container)
+
+        labelView.text = item.label()
+
+        addChildButton.setOnClickListener {
+            addChildTo(item, subContainer, itemView)
+        }
+
+        itemStore.getChildrenOf(item.id).forEach { child ->
+            subContainer.addView(createItemView(child, subContainer))
+        }
+        return itemView
     }
 
     companion object {
