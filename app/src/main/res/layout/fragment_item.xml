@@ -27,6 +27,14 @@
             android:contentDescription="@string/add_item"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:tint="?attr/colorOnSurface" />
+        <ImageButton
+            android:id="@+id/button_remove_item"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/ic_delete"
+            android:contentDescription="@string/remove_item"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:tint="?attr/colorOnSurface" />
     </LinearLayout>
 
     <LinearLayout

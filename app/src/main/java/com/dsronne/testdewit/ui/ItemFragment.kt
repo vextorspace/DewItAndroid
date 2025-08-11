@@ -45,7 +45,7 @@ class ItemFragment(private val itemStore: ItemStore) : Fragment() {
         }
 
         itemStore.getChildrenOf(currentItem.id).forEach { child ->
-            childrenContainer.addView(createItemView(child, childrenContainer))
+            childrenContainer.addView(createItemView(child, childrenContainer, currentItem))
         }
     }
 
@@ -55,16 +55,21 @@ class ItemFragment(private val itemStore: ItemStore) : Fragment() {
         parent.add(child)
         itemStore.edit(parent)
         Snackbar.make(hostView, "Added child '${child.label()}'", Snackbar.LENGTH_SHORT).show()
-        container.addView(createItemView(child, container))
+        container.addView(createItemView(child, container, parent))
     }
 
-    private fun createItemView(item: ListItem, parentContainer: LinearLayout): View {
+    private fun createItemView(
+        item: ListItem,
+        parentContainer: LinearLayout,
+        parentItem: ListItem
+    ): View {
         val itemView = layoutInflater.inflate(R.layout.fragment_item, parentContainer, false).also {
             // remove outer padding inherited from fragment_item root so nested items only indent on the left
             it.setPadding(0, 0, 0, 0)
         }
         val labelView = itemView.findViewById<TextView>(R.id.text_label)
         val addChildButton = itemView.findViewById<ImageButton>(R.id.button_add_child)
+        val removeButton = itemView.findViewById<ImageButton>(R.id.button_remove_item)
         val subContainer = itemView.findViewById<LinearLayout>(R.id.children_container)
 
         labelView.text = item.label()
@@ -73,8 +78,15 @@ class ItemFragment(private val itemStore: ItemStore) : Fragment() {
             addChildTo(item, subContainer, itemView)
         }
 
+        removeButton.setOnClickListener {
+            parentItem.children.remove(item.id)
+            itemStore.edit(parentItem)
+            Snackbar.make(itemView, "Removed '${item.label()}'", Snackbar.LENGTH_SHORT).show()
+            parentContainer.removeView(itemView)
+        }
+
         itemStore.getChildrenOf(item.id).forEach { child ->
-            subContainer.addView(createItemView(child, subContainer))
+            subContainer.addView(createItemView(child, subContainer, item))
         }
         return itemView
     }

@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">TestDewIt</string>
     <string name="add_item">Add Item</string>
+    <string name="remove_item">Remove Item</string>
 </resources>
