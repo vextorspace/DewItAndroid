@@ -84,9 +84,25 @@ class ItemFragment(private val itemStore: ItemStore) : Fragment() {
         }
 
         editButton.setOnClickListener {
-            val parent = labelView.parent as ViewGroup
-            val index = parent.indexOfChild(labelView)
-            parent.removeView(labelView)
+            // Toggle editing: if an EditText is already present, finish editing
+            val row = (labelView.parent ?: editButton.parent) as ViewGroup
+            val editIndex = (0 until row.childCount).firstOrNull { row.getChildAt(it) is EditText } ?: -1
+            if (editIndex != -1) {
+                val existingEditor = row.getChildAt(editIndex) as EditText
+                val newLabel = existingEditor.text.toString()
+                item.data.label = newLabel
+                itemStore.edit(item)
+                row.removeViewAt(editIndex)
+                row.addView(labelView, editIndex)
+                labelView.text = newLabel
+                Snackbar.make(itemView, "Edited '$newLabel'", Snackbar.LENGTH_SHORT).show()
+                val imm = itemView.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.hideSoftInputFromWindow(labelView.windowToken, 0)
+                return@setOnClickListener
+            }
+            // Start editing
+            val index = row.indexOfChild(labelView)
+            row.removeView(labelView)
             val editText = EditText(itemView.context).apply {
                 setText(item.label())
                 layoutParams = labelView.layoutParams
@@ -96,25 +112,30 @@ class ItemFragment(private val itemStore: ItemStore) : Fragment() {
                 setSelectAllOnFocus(true)
                 imeOptions = EditorInfo.IME_ACTION_DONE
             }
-            parent.addView(editText, index)
+            row.addView(editText, index)
             val imm = itemView.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT)
-
-            fun finishEditing() {
-                val newLabel = editText.text.toString()
-                item.data.label = newLabel
-                itemStore.edit(item)
-                parent.removeView(editText)
-                parent.addView(labelView, index)
-                labelView.text = newLabel
-                Snackbar.make(itemView, "Edited '$newLabel'", Snackbar.LENGTH_SHORT).show()
-                imm.hideSoftInputFromWindow(labelView.windowToken, 0)
+            editText.setOnFocusChangeListener { _, hasFocus -> if (!hasFocus) {
+                    val newLabel = editText.text.toString()
+                    item.data.label = newLabel
+                    itemStore.edit(item)
+                    row.removeView(editText)
+                    row.addView(labelView, index)
+                    labelView.text = newLabel
+                    Snackbar.make(itemView, "Edited '$newLabel'", Snackbar.LENGTH_SHORT).show()
+                    imm.hideSoftInputFromWindow(labelView.windowToken, 0)
+                }
             }
-
-            editText.setOnFocusChangeListener { _, hasFocus -> if (!hasFocus) finishEditing() }
             editText.setOnEditorActionListener { _, actionId, _ ->
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    finishEditing()
+                    val newLabel = editText.text.toString()
+                    item.data.label = newLabel
+                    itemStore.edit(item)
+                    row.removeView(editText)
+                    row.addView(labelView, index)
+                    labelView.text = newLabel
+                    Snackbar.make(itemView, "Edited '$newLabel'", Snackbar.LENGTH_SHORT).show()
+                    imm.hideSoftInputFromWindow(labelView.windowToken, 0)
                     true
                 } else {
                     false

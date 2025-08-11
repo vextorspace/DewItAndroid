@@ -16,7 +16,7 @@ This is an android app that primarily manages lists
 ### We believe in descriptive names and good organization over large comments
 
 ## Todo
-- When an edit is in progress, clicking on the edit button should leave edit mode
+- refactor itemfragment
 - changes should also be stored to a local database
 - changes should be synced to a remote database
 - items need a body text
