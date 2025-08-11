@@ -118,18 +118,18 @@ class ItemFragment(private val itemStore: ItemStore) : Fragment() {
         val editButton = itemView.findViewById<ImageButton>(R.id.button_edit_item)
         val subContainer = itemView.findViewById<LinearLayout>(R.id.children_container)
 
-        bindChildLabel(labelView, item)
-        bindAddChildButton(addChildButton, item, subContainer, itemView)
-        bindEditButton(editButton, labelView, itemView, item)
-        bindRemoveButton(removeButton, parentContainer, parentItem, itemView, item)
-        bindChildItems(subContainer, item)
+        setupChildLabel(labelView, item)
+        setupAddChildButton(addChildButton, item, subContainer, itemView)
+        setupEditButton(editButton, labelView, itemView, item)
+        setupRemoveButton(removeButton, parentContainer, parentItem, itemView, item)
+        populateChildItems(subContainer, item)
     }
 
-    private fun bindChildLabel(labelView: TextView, item: ListItem) {
+    private fun setupChildLabel(labelView: TextView, item: ListItem) {
         labelView.text = item.label()
     }
 
-    private fun bindAddChildButton(
+    private fun setupAddChildButton(
         button: ImageButton,
         item: ListItem,
         container: LinearLayout,
@@ -140,7 +140,7 @@ class ItemFragment(private val itemStore: ItemStore) : Fragment() {
         }
     }
 
-    private fun bindEditButton(
+    private fun setupEditButton(
         button: ImageButton,
         labelView: TextView,
         itemView: View,
@@ -189,7 +189,7 @@ class ItemFragment(private val itemStore: ItemStore) : Fragment() {
         }
     }
 
-    private fun bindRemoveButton(
+    private fun setupRemoveButton(
         button: ImageButton,
         parentContainer: LinearLayout,
         parentItem: ListItem,
@@ -203,7 +203,7 @@ class ItemFragment(private val itemStore: ItemStore) : Fragment() {
         }
     }
 
-    private fun bindChildItems(container: LinearLayout, parentItem: ListItem) {
+    private fun populateChildItems(container: LinearLayout, parentItem: ListItem) {
         itemStore.getChildrenOf(parentItem.id).forEach { child ->
             container.addView(createItemView(child, container, parentItem))
         }
