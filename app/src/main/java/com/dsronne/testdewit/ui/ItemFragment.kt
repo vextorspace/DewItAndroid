@@ -9,6 +9,7 @@ import android.widget.ImageButton
 import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
 import com.dsronne.testdewit.R
+import com.dsronne.testdewit.databinding.FragmentItemBinding
 import com.dsronne.testdewit.datamodel.Item
 import com.dsronne.testdewit.datamodel.ListItem
 import com.dsronne.testdewit.datamodel.ItemId
@@ -34,7 +35,8 @@ class ItemFragment(private val itemStore: ItemStore) : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_item, container, false)
+        val binding = FragmentItemBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -93,9 +95,10 @@ class ItemFragment(private val itemStore: ItemStore) : Fragment() {
     }
 
     private fun bindRootView(view: View) {
-        val labelView = view.findViewById<TextView>(R.id.text_label)
-        val addButton = view.findViewById<ImageButton>(R.id.button_add_child)
-        val childrenContainer = view.findViewById<LinearLayout>(R.id.children_container)
+        val binding = FragmentItemBinding.bind(view)
+        val labelView = binding.textLabel
+        val addButton = binding.buttonAddChild
+        val childrenContainer = binding.childrenContainer
 
         labelView.text = currentItem.label()
         addButton.setOnClickListener {
@@ -112,11 +115,12 @@ class ItemFragment(private val itemStore: ItemStore) : Fragment() {
         parentContainer: LinearLayout,
         parentItem: ListItem
     ) {
-        val labelView = itemView.findViewById<TextView>(R.id.text_label)
-        val addChildButton = itemView.findViewById<ImageButton>(R.id.button_add_child)
-        val removeButton = itemView.findViewById<ImageButton>(R.id.button_remove_item)
-        val editButton = itemView.findViewById<ImageButton>(R.id.button_edit_item)
-        val subContainer = itemView.findViewById<LinearLayout>(R.id.children_container)
+        val binding = FragmentItemBinding.bind(itemView)
+        val labelView = binding.textLabel
+        val addChildButton = binding.buttonAddChild
+        val removeButton = binding.buttonRemoveItem
+        val editButton = binding.buttonEditItem
+        val subContainer = binding.childrenContainer
 
         setupChildLabel(labelView, item)
         setupAddChildButton(addChildButton, item, subContainer, itemView)

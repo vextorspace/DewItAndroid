@@ -14,9 +14,73 @@ This is an android app that primarily manages lists
 ## Development
 ### We dont worry about automated tests for the UI but we do test the internal logic.
 ### We believe in descriptive names and good organization over large comments
+  
+## Project Structure
+
+```
+app/
+├── build.gradle.kts
+├── proguard-rules.pro
+├── CONTEXT.md
+├── src/
+│   ├── main/
+│   │   ├── AndroidManifest.xml
+│   │   ├── java/com/dsronne/testdewit/
+│   │   │   ├── MainActivity.kt
+│   │   │   ├── viewports/…
+│   │   │   ├── ui/…
+│   │   │   ├── datamodel/…
+│   │   │   ├── storage/…
+│   │   │   └── storageports/…
+│   │   └── res/
+│   │       ├── layout/…
+│   │       ├── drawable/…
+│   │       ├── mipmap-*/…
+│   │       ├── values/…
+│   │       └── xml/…
+│   ├── test/
+│   │   └── java/com/dsronne/testdewit/
+│   └── androidTest/
+│       └── java/com/dsronne/testdewit/
+```  
+
+## Key Entry Points
+
+1. **MainActivity**
+   - Inflates `activity_main.xml`, sets up edge-to-edge insets.
+   - Constructs `InMemoryItemRepository` → `ItemStore` and seeds the root.
+   - Retrieves top-level children and feeds them to `ItemPagerAdapter`.
+
+2. **ItemPagerAdapter**
+   - Presents one `ItemFragment` per root-child item via `ViewPager2`.
+
+3. **ItemFragment**
+   - Renders an item’s label and nested children list.
+   - Handles add/edit/remove operations on items through `ItemStore`.
+
+## Architecture
+
+```
+┌───────────┐     ┌──────────────┐     ┌───────────────┐
+│  UI/View  │◀───▶│  ItemStore   │◀───▶│ ItemRepository│
+└───────────┘     └──────────────┘     └───────────────┘
+    ▲                                     ▲
+    │                                     │
+ Fragments                           InMemory / DB /
+ Adapters                             remote impl
+```
+
+## Build & Test
+
+- **Command-line:**
+  ```bash
+  ./gradlew assembleDebug   # build the debug APK
+  ./gradlew :app:testDebugUnitTest   # run local unit tests for the debug build
+  ./gradlew connectedAndroidTest  # run instrumentation tests on a connected device/emulator
+  ```
 
 ## Todo
-- adopt View Binding (or Kotlin Android extensions) instead of manual findViewById
+- fix deprecated warnings on compile
 - use RecyclerView with a tree-capable adapter (4b)
 - maybe instead of Recycle View extract custom TreeView/NestedListView component (4c)
 - changes should also be stored to a local database

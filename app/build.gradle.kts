@@ -38,6 +38,9 @@ android {
             pickFirsts += "META-INF/LICENSE*"
         }
     }
+    buildFeatures {
+        viewBinding = true
+    }
 }
 
 dependencies {

@@ -9,13 +9,15 @@ import androidx.viewpager2.widget.ViewPager2
 import com.dsronne.testdewit.storage.InMemoryItemRepository
 import com.dsronne.testdewit.storage.ItemStore
 import com.dsronne.testdewit.ui.ItemPagerAdapter
+import com.dsronne.testdewit.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_main)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+        val binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        ViewCompat.setOnApplyWindowInsetsListener(binding.main) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
@@ -26,7 +28,6 @@ class MainActivity : AppCompatActivity() {
         itemStore.initProgramManagement()
         val rootChildren = itemStore.getChildrenOf(itemStore.root().id)
 
-        val viewPager = findViewById<ViewPager2>(R.id.view_pager)
-        viewPager.adapter = ItemPagerAdapter(this, rootChildren, itemStore)
+        binding.viewPager.adapter = ItemPagerAdapter(this, rootChildren, itemStore)
     }
 }
