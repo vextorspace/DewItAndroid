@@ -13,7 +13,6 @@ import com.dsronne.testdewit.datamodel.Item
 import com.dsronne.testdewit.datamodel.ListItem
 import com.dsronne.testdewit.datamodel.ItemId
 import com.dsronne.testdewit.storage.ItemStore
-import com.google.android.material.snackbar.Snackbar
 import android.widget.EditText
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
@@ -58,7 +57,6 @@ class ItemFragment(private val itemStore: ItemStore) : Fragment() {
         itemStore.add(child)
         parent.add(child)
         itemStore.edit(parent)
-        Snackbar.make(hostView, "Added child '${child.label()}'", Snackbar.LENGTH_SHORT).show()
         container.addView(createItemView(child, container, parent))
     }
 
@@ -90,14 +88,7 @@ class ItemFragment(private val itemStore: ItemStore) : Fragment() {
             if (editIndex != -1) {
                 val existingEditor = row.getChildAt(editIndex) as EditText
                 val newLabel = existingEditor.text.toString()
-                item.data.label = newLabel
-                itemStore.edit(item)
-                row.removeViewAt(editIndex)
-                row.addView(labelView, editIndex)
-                labelView.text = newLabel
-                Snackbar.make(itemView, "Edited '$newLabel'", Snackbar.LENGTH_SHORT).show()
-                val imm = itemView.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                imm.hideSoftInputFromWindow(labelView.windowToken, 0)
+                commitEdit(row, labelView, itemView, item, newLabel, editIndex)
                 return@setOnClickListener
             }
             // Start editing
@@ -117,25 +108,13 @@ class ItemFragment(private val itemStore: ItemStore) : Fragment() {
             imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT)
             editText.setOnFocusChangeListener { _, hasFocus -> if (!hasFocus) {
                     val newLabel = editText.text.toString()
-                    item.data.label = newLabel
-                    itemStore.edit(item)
-                    row.removeView(editText)
-                    row.addView(labelView, index)
-                    labelView.text = newLabel
-                    Snackbar.make(itemView, "Edited '$newLabel'", Snackbar.LENGTH_SHORT).show()
-                    imm.hideSoftInputFromWindow(labelView.windowToken, 0)
+                    commitEdit(row, labelView, itemView, item, newLabel, index)
                 }
             }
             editText.setOnEditorActionListener { _, actionId, _ ->
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     val newLabel = editText.text.toString()
-                    item.data.label = newLabel
-                    itemStore.edit(item)
-                    row.removeView(editText)
-                    row.addView(labelView, index)
-                    labelView.text = newLabel
-                    Snackbar.make(itemView, "Edited '$newLabel'", Snackbar.LENGTH_SHORT).show()
-                    imm.hideSoftInputFromWindow(labelView.windowToken, 0)
+                    commitEdit(row, labelView, itemView, item, newLabel, index)
                     true
                 } else {
                     false
@@ -146,7 +125,6 @@ class ItemFragment(private val itemStore: ItemStore) : Fragment() {
         removeButton.setOnClickListener {
             parentItem.children.remove(item.id)
             itemStore.edit(parentItem)
-            Snackbar.make(itemView, "Removed '${item.label()}'", Snackbar.LENGTH_SHORT).show()
             parentContainer.removeView(itemView)
         }
 
@@ -154,6 +132,23 @@ class ItemFragment(private val itemStore: ItemStore) : Fragment() {
             subContainer.addView(createItemView(child, subContainer, item))
         }
         return itemView
+    }
+
+    private fun commitEdit(
+        row: ViewGroup,
+        labelView: TextView,
+        itemView: View,
+        item: ListItem,
+        newLabel: String,
+        index: Int
+    ) {
+        item.data.label = newLabel
+        itemStore.edit(item)
+        row.removeViewAt(index)
+        row.addView(labelView, index)
+        labelView.text = newLabel
+        val imm = itemView.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(labelView.windowToken, 0)
     }
 
     companion object {
