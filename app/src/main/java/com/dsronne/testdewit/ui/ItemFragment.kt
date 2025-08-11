@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Button
+import android.widget.ImageButton
 import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
 import com.dsronne.testdewit.R
@@ -37,13 +37,13 @@ class ItemFragment(private val itemStore: ItemStore) : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         view.findViewById<TextView>(R.id.text_label).text = currentItem.label()
-        val addButton = view.findViewById<Button>(R.id.button_add_child)
+        val addButton = view.findViewById<ImageButton>(R.id.button_add_child)
         val childrenContainer = view.findViewById<LinearLayout>(R.id.children_container)
 
         fun createItemView(item: ListItem): View {
             val itemView = layoutInflater.inflate(R.layout.fragment_item, childrenContainer, false)
             val labelView = itemView.findViewById<TextView>(R.id.text_label)
-            val addChildButton = itemView.findViewById<Button>(R.id.button_add_child)
+            val addChildButton = itemView.findViewById<ImageButton>(R.id.button_add_child)
             val subContainer = itemView.findViewById<LinearLayout>(R.id.children_container)
 
             labelView.text = item.label()
