@@ -14,3 +14,13 @@ This is an android app that primarily manages lists
 ## Development
 ### We dont worry about automated tests for the UI but we do test the internal logic.
 ### We believe in descriptive names and good organization over large comments
+
+## Todo
+- When an edit is in progress, clicking on the edit button should leave edit mode
+- changes should also be stored to a local database
+- changes should be synced to a remote database
+- items need a body text
+- items need a todo checkbox when they are added to the todo list
+- when the todo is checked the item should cross off that list and go to a done list (in the top level)
+- when the todo is checked a date at which it was completed should be stored
+- items need to be able to be added to the inbox at a date that is set
