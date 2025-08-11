@@ -18,6 +18,7 @@ import android.widget.EditText
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.content.Context
+import android.util.TypedValue
 
 class ItemFragment(private val itemStore: ItemStore) : Fragment() {
     private lateinit var currentItem: ListItem
@@ -166,7 +167,7 @@ class ItemFragment(private val itemStore: ItemStore) : Fragment() {
             val editText = EditText(itemView.context).apply {
                 setText(item.label())
                 layoutParams = labelView.layoutParams
-                textSize = labelView.textSize / labelView.resources.displayMetrics.scaledDensity
+                setTextSize(TypedValue.COMPLEX_UNIT_PX, labelView.textSize)
                 typeface = labelView.typeface
                 requestFocus()
                 setSelectAllOnFocus(true)
