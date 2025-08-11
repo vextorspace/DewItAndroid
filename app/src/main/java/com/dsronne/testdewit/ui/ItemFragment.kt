@@ -39,17 +39,7 @@ class ItemFragment(private val itemStore: ItemStore) : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        view.findViewById<TextView>(R.id.text_label).text = currentItem.label()
-        val addButton = view.findViewById<ImageButton>(R.id.button_add_child)
-        val childrenContainer = view.findViewById<LinearLayout>(R.id.children_container)
-
-        addButton.setOnClickListener {
-            addChildTo(currentItem, childrenContainer, view)
-        }
-
-        itemStore.getChildrenOf(currentItem.id).forEach { child ->
-            childrenContainer.addView(createItemView(child, childrenContainer, currentItem))
-        }
+        bindRootView(view)
     }
 
     private fun addChildTo(parent: ListItem, container: LinearLayout, hostView: View) {
@@ -69,6 +59,59 @@ class ItemFragment(private val itemStore: ItemStore) : Fragment() {
             // remove outer padding inherited from fragment_item root so nested items only indent on the left
             it.setPadding(0, 0, 0, 0)
         }
+        bindChildView(itemView, item, parentContainer, parentItem)
+        return itemView
+    }
+
+    private fun commitEdit(
+        row: ViewGroup,
+        labelView: TextView,
+        itemView: View,
+        item: ListItem,
+        newLabel: String,
+        index: Int
+    ) {
+        item.data.label = newLabel
+        itemStore.edit(item)
+        row.removeViewAt(index)
+        row.addView(labelView, index)
+        labelView.text = newLabel
+        val imm = itemView.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(labelView.windowToken, 0)
+    }
+
+    companion object {
+        private const val ARG_ITEM_ID = "arg_item_id"
+
+        fun newInstance(item: ListItem, store: ItemStore): ItemFragment {
+            val fragment = ItemFragment(store)
+            fragment.arguments = Bundle().apply {
+                putString(ARG_ITEM_ID, item.id.id)
+            }
+            return fragment
+        }
+    }
+
+    private fun bindRootView(view: View) {
+        val labelView = view.findViewById<TextView>(R.id.text_label)
+        val addButton = view.findViewById<ImageButton>(R.id.button_add_child)
+        val childrenContainer = view.findViewById<LinearLayout>(R.id.children_container)
+
+        labelView.text = currentItem.label()
+        addButton.setOnClickListener {
+            addChildTo(currentItem, childrenContainer, view)
+        }
+        itemStore.getChildrenOf(currentItem.id).forEach { child ->
+            childrenContainer.addView(createItemView(child, childrenContainer, currentItem))
+        }
+    }
+
+    private fun bindChildView(
+        itemView: View,
+        item: ListItem,
+        parentContainer: LinearLayout,
+        parentItem: ListItem
+    ) {
         val labelView = itemView.findViewById<TextView>(R.id.text_label)
         val addChildButton = itemView.findViewById<ImageButton>(R.id.button_add_child)
         val removeButton = itemView.findViewById<ImageButton>(R.id.button_remove_item)
@@ -130,36 +173,6 @@ class ItemFragment(private val itemStore: ItemStore) : Fragment() {
 
         itemStore.getChildrenOf(item.id).forEach { child ->
             subContainer.addView(createItemView(child, subContainer, item))
-        }
-        return itemView
-    }
-
-    private fun commitEdit(
-        row: ViewGroup,
-        labelView: TextView,
-        itemView: View,
-        item: ListItem,
-        newLabel: String,
-        index: Int
-    ) {
-        item.data.label = newLabel
-        itemStore.edit(item)
-        row.removeViewAt(index)
-        row.addView(labelView, index)
-        labelView.text = newLabel
-        val imm = itemView.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(labelView.windowToken, 0)
-    }
-
-    companion object {
-        private const val ARG_ITEM_ID = "arg_item_id"
-
-        fun newInstance(item: ListItem, store: ItemStore): ItemFragment {
-            val fragment = ItemFragment(store)
-            fragment.arguments = Bundle().apply {
-                putString(ARG_ITEM_ID, item.id.id)
-            }
-            return fragment
         }
     }
 }
