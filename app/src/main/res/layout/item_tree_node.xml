@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:padding="8dp">
+
+    <View
+        android:id="@+id/indent_view"
+        android:layout_width="0dp"
+        android:layout_height="match_parent" />
+
+    <TextView
+        android:id="@+id/text_label"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textSize="18sp" />
+
+    <ImageButton
+        android:id="@+id/button_expand_collapse"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@android:drawable/arrow_down_float"
+        android:contentDescription="@string/expand_collapse"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:tint="?attr/colorOnSurface" />
+
+    <ImageButton
+        android:id="@+id/button_add_child"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_add"
+        android:contentDescription="@string/add_item"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:tint="?attr/colorOnSurface" />
+
+    <ImageButton
+        android:id="@+id/button_edit_item"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@android:drawable/ic_menu_edit"
+        android:contentDescription="@string/edit_item"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:tint="?attr/colorOnSurface" />
+
+    <ImageButton
+        android:id="@+id/button_remove_item"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@android:drawable/ic_delete"
+        android:contentDescription="@string/remove_item"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:tint="?attr/colorOnSurface" />
+
+</LinearLayout>

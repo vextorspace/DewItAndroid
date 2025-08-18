@@ -45,12 +45,11 @@
             android:tint="?attr/colorOnSurface" />
     </LinearLayout>
 
-    <LinearLayout
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/children_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingStart="16dp"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:layout_marginTop="16dp" />
 
 </LinearLayout>
