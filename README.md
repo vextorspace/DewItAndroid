@@ -80,7 +80,6 @@ app/
   ```
 
 ## Todo
-- instead of an inmemoryitemrepository use a local sqlite database.
 - changes should be synced to a remote database
 - items need a body text
 - items need a todo checkbox when they are added to the todo list
