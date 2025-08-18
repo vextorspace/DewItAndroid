@@ -36,12 +36,12 @@ class TreeAdapter(
         // recursively add all child nodes expanded by default
         fun addNodes(item: ListItem, depth: Int) {
             nodes.add(TreeNode(item, depth, isExpanded = true))
-            for (child in itemStore.getChildrenOf(item.id)) {
-                addNodes(child, depth + 1)
+            item.children.mapNotNull { itemStore.find(it) }.forEach {
+                addNodes(it, depth+1)
             }
         }
-        for (child in itemStore.getChildrenOf(rootItem.id)) {
-            addNodes(child, 0)
+        rootItem.children.mapNotNull { itemStore.find(it) }.forEach {
+            addNodes(it, 0)
         }
     }
 

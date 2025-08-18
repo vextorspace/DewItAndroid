@@ -80,9 +80,7 @@ app/
   ```
 
 ## Todo
-- use RecyclerView with a tree-capable adapter (4b) for the item tree
-- maybe instead of Recycle View extract custom TreeView/NestedListView component (4c)
-- extract methods from setupeditbutton in itemfragment.kt for better readability
+- 
 - changes should also be stored to a local database
 - changes should be synced to a remote database
 - items need a body text
