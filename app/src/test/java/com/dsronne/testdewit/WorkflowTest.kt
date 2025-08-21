@@ -20,7 +20,16 @@ class WorkflowTest : io.kotest.core.spec.style.FunSpec({
         parentItem.add(childItem)
         childItem.add(parentItem)
 
-        class TestWorkflow(val name: String) : Workflow
+        class TestWorkflow(val name: String) : Workflow {
+            override fun apply(
+                itemStore: ItemStore,
+                parentId: ItemId,
+                item: ListItem
+            ) {
+                TODO("Not yet implemented")
+            }
+        }
+
         val workflow1 = TestWorkflow("workflow1")
         val workflow2 = TestWorkflow("workflow2")
 
