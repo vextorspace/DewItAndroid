@@ -12,6 +12,8 @@ data class ListItem(
      */
     fun label(): String = data.label
 
+    val workflows = mutableListOf<Workflow>()
+
     /**
      * Returns the wrapped item's id.
      */
@@ -28,5 +30,10 @@ data class ListItem(
      */
     fun add(child: ListItem) {
         children.add(child.id)
+    }
+
+    fun addWorkflow(workflow: Workflow) {
+        if(workflows.contains(workflow)) return
+        workflows.add(workflow)
     }
 }

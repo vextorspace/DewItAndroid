@@ -29,7 +29,10 @@ class Path(private val segments: List<ItemId> = listOf(ItemId("root"))) {
         return segments.joinToString("/")
     }
 
+    fun isEmpty(): Boolean = segments.isEmpty()
+
     operator fun plus(itemId: ItemId): Path = Path(segments + itemId)
 
     fun parent(): Path = Path(segments.dropLast(1))
+    fun itemIds(): List<ItemId> = segments;
 }

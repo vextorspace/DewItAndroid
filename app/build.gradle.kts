@@ -55,6 +55,7 @@ dependencies {
     implementation(libs.androidx.fragment.ktx)
     testImplementation(libs.junit)
     testImplementation(libs.mockk.core)
+    testImplementation(libs.kotest.assertions.core.jvm)
     androidTestImplementation(libs.mockk.android)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

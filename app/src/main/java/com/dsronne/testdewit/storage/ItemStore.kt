@@ -4,6 +4,8 @@ import com.dsronne.testdewit.datamodel.Item
 import com.dsronne.testdewit.viewports.ItemBrowser
 import com.dsronne.testdewit.datamodel.ItemId
 import com.dsronne.testdewit.datamodel.ListItem
+import com.dsronne.testdewit.datamodel.Path
+import com.dsronne.testdewit.datamodel.Workflow
 import com.dsronne.testdewit.domain.ports.ItemRepository
 import com.dsronne.testdewit.viewports.ItemEditor
 
@@ -57,5 +59,10 @@ class ItemStore(
             it.add(testItem)
             edit(it)
         }
+    }
+
+    fun getWorkflows(path: Path): List<Workflow> {
+        if(path.isEmpty()) return emptyList()
+        return path.itemIds().mapNotNull { id -> find(id) }.flatMap { it -> it.workflows }.distinct()
     }
 }
