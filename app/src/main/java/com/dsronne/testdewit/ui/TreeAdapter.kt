@@ -1,4 +1,4 @@
-package com.dsronne.testdewit.ui
+package com.dsronne.dewit.ui
 
 import android.view.LayoutInflater
 import android.view.View
@@ -6,10 +6,10 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.dsronne.testdewit.R
-import com.dsronne.testdewit.datamodel.Item
-import com.dsronne.testdewit.datamodel.ListItem
-import com.dsronne.testdewit.storage.ItemStore
+import com.dsronne.dewit.R
+import com.dsronne.dewit.datamodel.Item
+import com.dsronne.dewit.datamodel.ListItem
+import com.dsronne.dewit.storage.ItemStore
 import android.widget.EditText
 import android.util.TypedValue
 import android.view.inputmethod.EditorInfo

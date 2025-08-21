@@ -1,4 +1,4 @@
-package com.dsronne.testdewit.datamodel
+package com.dsronne.dewit.datamodel
 
 class Path(private val segments: List<ItemId> = listOf(ItemId("root"))) {
     init {

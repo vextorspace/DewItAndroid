@@ -1,4 +1,4 @@
-package com.dsronne.testdewit.ui
+package com.dsronne.dewit.ui
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -6,12 +6,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.dsronne.testdewit.databinding.FragmentItemBinding
-import com.dsronne.testdewit.datamodel.Item
-import com.dsronne.testdewit.datamodel.ItemId
-import com.dsronne.testdewit.datamodel.ListItem
-import com.dsronne.testdewit.storage.ItemStore
-import com.dsronne.testdewit.ui.TreeAdapter
+import com.dsronne.dewit.databinding.FragmentItemBinding
+import com.dsronne.dewit.datamodel.Item
+import com.dsronne.dewit.datamodel.ItemId
+import com.dsronne.dewit.datamodel.ListItem
+import com.dsronne.dewit.storage.ItemStore
+import com.dsronne.dewit.ui.TreeAdapter
 
 /**
  * Fragment displaying an item and its nested children using a tree-capable RecyclerView adapter.

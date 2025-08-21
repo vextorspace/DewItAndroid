@@ -1,11 +1,11 @@
-package com.dsronne.testdewit.ui
+package com.dsronne.dewit.ui
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.dsronne.testdewit.datamodel.ListItem
-import com.dsronne.testdewit.storage.ItemStore
-import com.dsronne.testdewit.ui.ItemFragment
+import com.dsronne.dewit.datamodel.ListItem
+import com.dsronne.dewit.storage.ItemStore
+import com.dsronne.dewit.ui.ItemFragment
 
 class ItemPagerAdapter(
     fa: FragmentActivity,

@@ -1,4 +1,4 @@
-package com.dsronne.testdewit
+package com.dsronne.dewit
 
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
@@ -6,10 +6,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.viewpager2.widget.ViewPager2
-import com.dsronne.testdewit.storage.SqliteItemRepository
-import com.dsronne.testdewit.storage.ItemStore
-import com.dsronne.testdewit.ui.ItemPagerAdapter
-import com.dsronne.testdewit.databinding.ActivityMainBinding
+import com.dsronne.dewit.storage.SqliteItemRepository
+import com.dsronne.dewit.storage.ItemStore
+import com.dsronne.dewit.ui.ItemPagerAdapter
+import com.dsronne.dewit.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity() {
         val repository = SqliteItemRepository(this)
         val itemStore = ItemStore(repository)
         // Seed initial program-management hierarchy only on first launch (empty DB)
-        if (repository.find(com.dsronne.testdewit.datamodel.ItemId("root")) == null) {
+        if (repository.find(com.dsronne.dewit.datamodel.ItemId("root")) == null) {
             itemStore.initProgramManagement()
         }
         val rootChildren = itemStore.getChildrenOf(itemStore.root().id)

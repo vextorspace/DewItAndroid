@@ -1,23 +1,20 @@
-package com.dsronne.testdewit
+package com.dsronne.dewit
 
-import com.dsronne.testdewit.datamodel.ItemId
-import com.dsronne.testdewit.datamodel.Path
-import org.junit.Test
-import org.junit.Assert.assertEquals
+import com.dsronne.dewit.datamodel.ItemId
+import com.dsronne.dewit.datamodel.Path
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
 
-class PathTest {
-
-    @Test
-    fun `empty path is root`() {
+class PathTest : io.kotest.core.spec.style.FunSpec({
+    test("empty path is root") {
         val path = Path()
-        assertEquals(ItemId("root"), path[0])
+        path[0] shouldBe ItemId("root")
     }
 
-    @Test
-    fun `Path from path and id is new path`() {
-      val path = Path(listOf(ItemId("root"), ItemId("first")))
+    test("path from path and id is new path") {
+        val path = Path(listOf(ItemId("root"), ItemId("first")))
         val newPath = path + ItemId("second")
-        assertEquals(ItemId("second"), newPath[2])
-        assertEquals(path, newPath.parent())
+        newPath[2] shouldBe ItemId("second")
+        newPath.parent() shouldBe path
     }
-}
+})

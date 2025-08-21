@@ -1,64 +1,44 @@
-package com.dsronne.testdewit
+package com.dsronne.dewit
 
-import com.dsronne.testdewit.datamodel.Item
-import com.dsronne.testdewit.datamodel.ListItem
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertTrue
-import org.junit.Assert.assertEquals
-import org.junit.Test
+import com.dsronne.dewit.datamodel.Item
+import com.dsronne.dewit.datamodel.ListItem
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
 
-class ListItemTest {
-    @Test
-    fun defaultConstructorProvidesDefaultData() {
+class ListItemTest : io.kotest.core.spec.style.FunSpec({
+    test("default constructor provides default data") {
         val listItem = ListItem()
-        assertNotNull("Expected default data to be non-null", listItem.data)
-        assertNotNull(
-            "Expected default data to be an Item instance",
-            listItem.data
-        )
+        listItem.data.shouldNotBeNull()
     }
 
-    @Test
-    fun addChildAddsChildId() {
+    test("addChild adds child id") {
         val parent = ListItem()
         val child = ListItem()
         parent.add(child)
-        assertTrue(
-            "Expected children to contain the added child's id",
-            parent.children.contains(child.id)
-        )
+        parent.children.shouldContain(child.id)
     }
 
-    @Test
-    fun labelReturnsItemLabel() {
+    test("label returns item label") {
         val label = "test label"
         val item = Item(label)
         val listItem = ListItem(item)
-        assertEquals(
-            "Expected label() to return the item's label",
-            label,
-            listItem.label()
-        )
+        listItem.label() shouldBe label
     }
 
-    @Test
-    fun addChildrenIdsOrderIsPreserved() {
+    test("addChildren ids order is preserved") {
         val parent = ListItem()
         val firstChild = ListItem()
         val secondChild = ListItem()
         parent.add(firstChild)
         parent.add(secondChild)
-        assertEquals(
-            "Expected second child's id to be last in children list",
-            secondChild.id,
-            parent.children.last()
-        )
+        parent.children.last() shouldBe secondChild.id
     }
 
-    @Test
-    fun idReturnsItemId() {
+    test("id returns item id") {
         val item = Item("test")
         val listItem = ListItem(item)
-        assertEquals("listItem's id should be the same as items", item.id, listItem.id)
+        listItem.id shouldBe item.id
     }
-}
+})

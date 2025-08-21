@@ -1,42 +1,39 @@
-package com.dsronne.testdewit.infrastructure
+package com.dsronne.dewit.infrastructure
 
-import com.dsronne.testdewit.datamodel.Item
-import com.dsronne.testdewit.datamodel.ItemId
-import com.dsronne.testdewit.datamodel.ListItem
-import com.dsronne.testdewit.storage.InMemoryItemRepository
-import org.junit.Assert.*
-import org.junit.Test
+import com.dsronne.dewit.datamodel.Item
+import com.dsronne.dewit.datamodel.ItemId
+import com.dsronne.dewit.datamodel.ListItem
+import com.dsronne.dewit.storage.InMemoryItemRepository
+import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.shouldBe
 
-class InMemoryItemRepositoryTest {
-    private val repository = InMemoryItemRepository()
-
-    @Test
-    fun saveShouldPersistItem() {
+class InMemoryItemRepositoryTest : io.kotest.core.spec.style.FunSpec({
+    test("save should persist item") {
+        val repository = InMemoryItemRepository()
         val item = ListItem(Item("test"))
-        
+
         repository.save(item)
-        
-        val loaded = repository.find(item.id)
-        assertEquals(item, loaded)
+
+        repository.find(item.id) shouldBe item
     }
 
-    @Test
-    fun findShouldReturnNullForNonExistentItem() {
-        val loaded = repository.find(ItemId("non-existent-id"))
-        assertNull(loaded)
+    test("find should return null for non-existent item") {
+        val repository = InMemoryItemRepository()
+        repository.find(ItemId("non-existent-id")).shouldBeNull()
     }
 
-    @Test
-    fun findAllShouldReturnAllSavedItems() {
+    test("findAll should return all saved items") {
+        val repository = InMemoryItemRepository()
         val item1 = ListItem(Item("test1"))
         val item2 = ListItem(Item("test2"))
-        
+
         repository.save(item1)
         repository.save(item2)
-        
+
         val allItems = repository.findAll()
-        assertEquals(2, allItems.size)
-        assertTrue(allItems.contains(item1))
-        assertTrue(allItems.contains(item2))
+        allItems.size shouldBe 2
+        allItems.shouldContain(item1)
+        allItems.shouldContain(item2)
     }
-}
+})

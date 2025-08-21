@@ -1,7 +1,7 @@
-package com.dsronne.testdewit.domain.ports
+package com.dsronne.dewit.domain.ports
 
-import com.dsronne.testdewit.datamodel.ItemId
-import com.dsronne.testdewit.datamodel.ListItem
+import com.dsronne.dewit.datamodel.ItemId
+import com.dsronne.dewit.datamodel.ListItem
 
 interface ItemRepository {
     fun save(item: ListItem)

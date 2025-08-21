@@ -1,8 +1,8 @@
-package com.dsronne.testdewit.storage
+package com.dsronne.dewit.storage
 
-import com.dsronne.testdewit.datamodel.ItemId
-import com.dsronne.testdewit.datamodel.ListItem
-import com.dsronne.testdewit.domain.ports.ItemRepository
+import com.dsronne.dewit.datamodel.ItemId
+import com.dsronne.dewit.datamodel.ListItem
+import com.dsronne.dewit.domain.ports.ItemRepository
 
 class InMemoryItemRepository : ItemRepository {
     private val items = mutableMapOf<ItemId, ListItem>()

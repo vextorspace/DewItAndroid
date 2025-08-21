@@ -1,13 +1,13 @@
-package com.dsronne.testdewit.storage
+package com.dsronne.dewit.storage
 
-import com.dsronne.testdewit.datamodel.Item
-import com.dsronne.testdewit.viewports.ItemBrowser
-import com.dsronne.testdewit.datamodel.ItemId
-import com.dsronne.testdewit.datamodel.ListItem
-import com.dsronne.testdewit.datamodel.Path
-import com.dsronne.testdewit.datamodel.Workflow
-import com.dsronne.testdewit.domain.ports.ItemRepository
-import com.dsronne.testdewit.viewports.ItemEditor
+import com.dsronne.dewit.datamodel.Item
+import com.dsronne.dewit.viewports.ItemBrowser
+import com.dsronne.dewit.datamodel.ItemId
+import com.dsronne.dewit.datamodel.ListItem
+import com.dsronne.dewit.datamodel.Path
+import com.dsronne.dewit.datamodel.Workflow
+import com.dsronne.dewit.domain.ports.ItemRepository
+import com.dsronne.dewit.viewports.ItemEditor
 
 class ItemStore(
     private val repository: ItemRepository,

@@ -1,4 +1,4 @@
-package com.dsronne.testdewit.storage
+package com.dsronne.dewit.storage
 
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase

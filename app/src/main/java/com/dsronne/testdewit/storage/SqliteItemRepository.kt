@@ -1,12 +1,12 @@
-package com.dsronne.testdewit.storage
+package com.dsronne.dewit.storage
 
 import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
-import com.dsronne.testdewit.datamodel.ItemId
-import com.dsronne.testdewit.datamodel.ListItem
-import com.dsronne.testdewit.datamodel.Item
-import com.dsronne.testdewit.domain.ports.ItemRepository
+import com.dsronne.dewit.datamodel.ItemId
+import com.dsronne.dewit.datamodel.ListItem
+import com.dsronne.dewit.datamodel.Item
+import com.dsronne.dewit.domain.ports.ItemRepository
 
 class SqliteItemRepository(context: Context) : ItemRepository {
     private val dbHelper = ItemDatabaseHelper(context)

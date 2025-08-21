@@ -1,4 +1,4 @@
-package com.dsronne.testdewit.datamodel
+package com.dsronne.dewit.datamodel
 
 /**
  * Simple domain model representing an item with a text label.

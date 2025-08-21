@@ -1,39 +1,35 @@
-package com.dsronne.testdewit
+package com.dsronne.dewit
 
-import com.dsronne.testdewit.datamodel.Item
-import com.dsronne.testdewit.datamodel.ItemId
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotEquals
-import org.junit.Test
+import com.dsronne.dewit.datamodel.Item
+import com.dsronne.dewit.datamodel.ItemId
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 
-class ItemTest {
-    @Test
-    fun itemLabelReturnsConstructorValue() {
+class ItemTest : io.kotest.core.spec.style.FunSpec({
+    test("item label returns constructor value") {
         val text = "some string"
         val item = Item(text)
-        assertEquals(text, item.label)
+        item.label shouldBe text
     }
 
-    @Test
-    fun itemIdReturnsSecondConstructorValue() {
+    test("item id returns second constructor value") {
         val label = "label"
         val id = ItemId("identifier")
         val item = Item(label, id)
-        assertEquals(id, item.id)
+        item.id shouldBe id
     }
-    @Test
-    fun itemsWithSameIdAreEqual() {
+
+    test("items with same id are equal") {
         val id = ItemId("shared-id")
         val item1 = Item("first", id)
         val item2 = Item("second", id)
-        assertEquals(item1, item2)
+        item1 shouldBe item2
     }
 
-    @Test
-    fun itemsCreatedWithSameLabelHaveDifferentIds() {
+    test("items created with same label have different ids") {
         val label = "same-label"
         val item1 = Item(label)
         val item2 = Item(label)
-        assertNotEquals(item1.id, item2.id)
+        item1.id shouldNotBe item2.id
     }
-}
+})

@@ -1,7 +1,7 @@
-package com.dsronne.testdewit.viewports
+package com.dsronne.dewit.viewports
 
-import com.dsronne.testdewit.datamodel.Item
-import com.dsronne.testdewit.datamodel.ListItem
+import com.dsronne.dewit.datamodel.Item
+import com.dsronne.dewit.datamodel.ListItem
 
 interface ItemEditor {
 
