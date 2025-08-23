@@ -13,4 +13,15 @@ open class CopyWorkflow(val targetId: ItemId) : Workflow {
         }
         return false
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        other as CopyWorkflow
+        return targetId == other.targetId
+    }
+
+    override fun hashCode(): Int {
+        return targetId.hashCode()
+    }
 }

@@ -4,6 +4,7 @@ import com.dsronne.dewit.datamodel.Item
 import com.dsronne.dewit.viewports.ItemBrowser
 import com.dsronne.dewit.datamodel.ItemId
 import com.dsronne.dewit.datamodel.ListItem
+import com.dsronne.dewit.datamodel.MoveWorkflow
 import com.dsronne.dewit.datamodel.Path
 import com.dsronne.dewit.datamodel.Workflow
 import com.dsronne.dewit.domain.ports.ItemRepository
@@ -56,8 +57,10 @@ class ItemStore(
         val testItem = ListItem(Item("delete me"))
         add(testItem)
         inbox?.let {
+            it.addWorkflow(MoveWorkflow(ItemId("projects")))
             it.add(testItem)
             edit(it)
+
         }
     }
 
