@@ -80,6 +80,11 @@ class ItemStore(
             it.addWorkflow(CopyWorkflow(ItemId("todo")))
             edit(it)
         }
+
+        find(ItemId("references"))?.let {
+            it.addWorkflow(CopyWorkflow(ItemId("projects")))
+            edit(it)
+        }
     }
 
     fun getWorkflows(path: Path): List<Workflow> {

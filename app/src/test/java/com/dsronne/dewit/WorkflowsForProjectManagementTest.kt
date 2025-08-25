@@ -22,6 +22,14 @@ class WorkflowsForProjectManagementTest: BehaviorSpec({
             }
         }
 
+        When("workflows for references checked") {
+            val workflows = itemStore.find(ItemId("references"))!!.workflows
+
+            Then("it should contain copy to projects") {
+                workflows shouldContain CopyWorkflow(ItemId("projects"))
+            }
+        }
+
         When("workflows for projects checked") {
             val workflows = itemStore.find(ItemId("projects"))!!.workflows
 
