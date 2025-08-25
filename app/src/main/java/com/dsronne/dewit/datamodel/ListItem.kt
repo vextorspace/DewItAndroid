@@ -7,33 +7,21 @@ package com.dsronne.dewit.datamodel
 data class ListItem(
     val data: Item = Item("new item")
 ) {
-    /**
-     * Returns the wrapped item's label.
-     */
     fun label(): String = data.label
 
-    val workflows = mutableListOf<Workflow>()
-
-    /**
-     * Returns the wrapped item's id.
-     */
     val id: ItemId
         get() = data.id
 
-    /**
-     * Child list items nested under this item.
-     */
     val children: MutableList<ItemId> = mutableListOf()
 
-    /**
-     * Adds a child list item under this item.
-     */
+    val workflows: List<Workflow>
+        get() = data.workflows
+
     fun add(child: ListItem) {
         children.add(child.id)
     }
 
     fun addWorkflow(workflow: Workflow) {
-        if(workflows.contains(workflow)) return
-        workflows.add(workflow)
+        data.addWorkflow(workflow)
     }
 }

@@ -58,9 +58,13 @@ class ItemStore(
         add(testItem)
         inbox?.let {
             it.addWorkflow(MoveWorkflow(ItemId("projects")))
+            it.addWorkflow(MoveWorkflow(ItemId("references")))
+            it.addWorkflow(MoveWorkflow(ItemId("todo")))
+            it.addWorkflow(MoveWorkflow(ItemId("waiting")))
+            it.addWorkflow(MoveWorkflow(ItemId("someday")))
             it.add(testItem)
-            edit(it)
 
+            it.workflows.forEach { println("flow: " + it.name()) }
         }
     }
 

@@ -1,31 +1,53 @@
 package com.dsronne.dewit
 
 import com.dsronne.dewit.datamodel.Item
-import com.dsronne.dewit.datamodel.ItemId
 import com.dsronne.dewit.datamodel.ListItem
-import com.dsronne.dewit.datamodel.Workflow
-import com.dsronne.dewit.storage.ItemStore
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 
-class ListItemWorkflowTest : io.kotest.core.spec.style.FunSpec({
-    test("add workflow") {
+class ListItemWorkflowTest : BehaviorSpec({
+
+    Given("a list item and a workflow") {
         val item = ListItem(Item("test"))
-        class TestWorkflow : Workflow {
-            override fun apply(
-                itemStore: ItemStore,
-                parentId: ItemId,
-                item: ListItem
-            ) {
-                TODO("Not yet implemented")
+        val workflow = TestWorkflow("test 1")
+
+        When("Not added to item") {
+            Then("it is empty") {
+                item.workflows.shouldBeEmpty()
             }
         }
 
-        val workflow = TestWorkflow()
+        When("added to item") {
+            item.addWorkflow(workflow)
 
-        item.workflows.shouldBeEmpty()
-        item.addWorkflow(workflow)
-        item.workflows.shouldContainExactly(workflow)
+            Then("It is in the workflows") {
+                item.workflows.shouldContainExactly(workflow)
+            }
+        }
+    }
+
+    Given("a list item and two workflows") {
+        val item = ListItem(Item("test"))
+        val workflow1 = TestWorkflow("test 1")
+        val workflow2 = TestWorkflow("test 2")
+        When("both added to item") {
+            item.addWorkflow(workflow1)
+            item.addWorkflow(workflow2)
+
+            Then("It is in the workflows") {
+                item.workflows.shouldContainExactly(workflow1, workflow2)
+            }
+        }
+
+        And("one added twice") {
+            item.addWorkflow(workflow1)
+            item.addWorkflow(workflow2)
+            item.addWorkflow(workflow1)
+            Then("it is once in the results") {
+                item.workflows.shouldContainExactly(workflow1, workflow2)
+            }
+        }
+
     }
 })

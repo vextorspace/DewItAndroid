@@ -3,6 +3,11 @@ package com.dsronne.dewit.datamodel
 import com.dsronne.dewit.storage.ItemStore
 
 class MoveWorkflow(targetId: ItemId) : CopyWorkflow(targetId) {
+
+    override fun name(): String {
+        return "Move $targetId"
+    }
+
     override fun apply(itemStore: ItemStore, parentId: ItemId, item: ListItem) : Boolean {
         if(! super.apply(itemStore, parentId, item)) return false
 
@@ -25,7 +30,8 @@ class MoveWorkflow(targetId: ItemId) : CopyWorkflow(targetId) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false
-        return !super.equals(other)
+        other as MoveWorkflow
+        return targetId == other.targetId
     }
 
     override fun hashCode(): Int {

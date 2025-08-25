@@ -15,12 +15,20 @@ package com.dsronne.dewit.datamodel
  */
 data class Item(
     var label: String,
-    val id: ItemId = ItemId()
+    val id: ItemId = ItemId(),
+    val workflows: MutableList<Workflow> = mutableListOf()
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Item) return false
         return id == other.id
+    }
+    fun addWorkflow(workflow: Workflow) {
+        if (workflows.contains(workflow)) {
+            println("already had ${workflow.name()}")
+            return
+        }
+        workflows.add(workflow)
     }
 
     override fun hashCode(): Int = id.hashCode()
