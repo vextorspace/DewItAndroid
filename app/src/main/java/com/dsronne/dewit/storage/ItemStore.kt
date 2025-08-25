@@ -40,10 +40,6 @@ class ItemStore(
         return parent.children.mapNotNull { childId -> find(childId) }
     }
 
-    /**
-     * Initializes the store with standard program management categories under the root:
-     * inbox, todo, projects, waiting, someday, and references.
-     */
     fun initProgramManagement() {
         val categories = listOf("inbox", "todo", "projects", "waiting", "someday", "references")
 
