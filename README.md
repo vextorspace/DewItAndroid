@@ -86,9 +86,8 @@ This is an android app that primarily manages lists
   ```
 
 ## Todo
-- need to store workflows in sqliteitemrepo
-- item in tree childmap needs to have a dropdown with all the workflows for the path that leads to that item in the tree.
-- selecting the workflow should execute it
+- selecting a workflow in the drop-down in the treeadapter should execute it
+- rotation should not crash, just redo the view sideways.
 - items need a todo checkbox when they are added to the todo list or waiting list
 - when the todo is checked the item should cross off that list and go to a done list (in the top level)
 - when the todo is checked a date at which it was completed should be stored
