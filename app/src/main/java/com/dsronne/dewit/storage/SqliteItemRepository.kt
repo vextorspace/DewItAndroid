@@ -6,6 +6,8 @@ import android.database.sqlite.SQLiteDatabase
 import com.dsronne.dewit.datamodel.ItemId
 import com.dsronne.dewit.datamodel.ListItem
 import com.dsronne.dewit.datamodel.Item
+import com.dsronne.dewit.datamodel.CopyWorkflow
+import com.dsronne.dewit.datamodel.MoveWorkflow
 import com.dsronne.dewit.domain.ports.ItemRepository
 
 class SqliteItemRepository(context: Context) : ItemRepository {
@@ -42,6 +44,34 @@ class SqliteItemRepository(context: Context) : ItemRepository {
                     SQLiteDatabase.CONFLICT_IGNORE
                 )
             }
+            // persist workflows for this item
+            db.delete(
+                ItemDatabaseHelper.TABLE_WORKFLOWS,
+                "${ItemDatabaseHelper.COL_WORKFLOW_ITEM_ID} = ?",
+                arrayOf(item.id.id)
+            )
+            item.workflows.forEach { workflow ->
+                val cvw = ContentValues().apply {
+                    put(ItemDatabaseHelper.COL_WORKFLOW_ITEM_ID, item.id.id)
+                    when (workflow) {
+                        is CopyWorkflow -> {
+                            put(ItemDatabaseHelper.COL_WORKFLOW_TYPE, "copy")
+                            put(ItemDatabaseHelper.COL_WORKFLOW_TARGET_ID, workflow.targetId.id)
+                        }
+                        is MoveWorkflow -> {
+                            put(ItemDatabaseHelper.COL_WORKFLOW_TYPE, "move")
+                            put(ItemDatabaseHelper.COL_WORKFLOW_TARGET_ID, workflow.targetId.id)
+                        }
+                        else -> return@forEach
+                    }
+                }
+                db.insertWithOnConflict(
+                    ItemDatabaseHelper.TABLE_WORKFLOWS,
+                    null,
+                    cvw,
+                    SQLiteDatabase.CONFLICT_IGNORE
+                )
+            }
             db.setTransactionSuccessful()
         } finally {
             db.endTransaction()
@@ -66,6 +96,27 @@ class SqliteItemRepository(context: Context) : ItemRepository {
                         childCursor.getColumnIndexOrThrow(ItemDatabaseHelper.COL_CHILD_ID)
                     )
                     item.children.add(ItemId(cid))
+                }
+            }
+            // load workflows for this item
+            db.rawQuery(
+                "SELECT ${ItemDatabaseHelper.COL_WORKFLOW_TYPE}, ${ItemDatabaseHelper.COL_WORKFLOW_TARGET_ID} " +
+                        "FROM ${ItemDatabaseHelper.TABLE_WORKFLOWS} WHERE ${ItemDatabaseHelper.COL_WORKFLOW_ITEM_ID} = ?",
+                arrayOf(id.id)
+            ).use { wfCursor ->
+                while (wfCursor.moveToNext()) {
+                    val type = wfCursor.getString(
+                        wfCursor.getColumnIndexOrThrow(ItemDatabaseHelper.COL_WORKFLOW_TYPE)
+                    )
+                    val target = wfCursor.getString(
+                        wfCursor.getColumnIndexOrThrow(ItemDatabaseHelper.COL_WORKFLOW_TARGET_ID)
+                    )
+                    when (type) {
+                        "copy" -> item.addWorkflow(CopyWorkflow(ItemId(target)))
+                        "move" -> item.addWorkflow(MoveWorkflow(ItemId(target)))
+                        else -> {
+                        }
+                    }
                 }
             }
             return item
@@ -97,6 +148,27 @@ class SqliteItemRepository(context: Context) : ItemRepository {
                         childCursor.getColumnIndexOrThrow(ItemDatabaseHelper.COL_CHILD_ID)
                     )
                     item.children.add(ItemId(cid))
+                }
+            }
+            // load workflows for this item
+            db.rawQuery(
+                "SELECT ${ItemDatabaseHelper.COL_WORKFLOW_TYPE}, ${ItemDatabaseHelper.COL_WORKFLOW_TARGET_ID} " +
+                        "FROM ${ItemDatabaseHelper.TABLE_WORKFLOWS} WHERE ${ItemDatabaseHelper.COL_WORKFLOW_ITEM_ID} = ?",
+                arrayOf(item.id.id)
+            ).use { wfCursor ->
+                while (wfCursor.moveToNext()) {
+                    val type = wfCursor.getString(
+                        wfCursor.getColumnIndexOrThrow(ItemDatabaseHelper.COL_WORKFLOW_TYPE)
+                    )
+                    val target = wfCursor.getString(
+                        wfCursor.getColumnIndexOrThrow(ItemDatabaseHelper.COL_WORKFLOW_TARGET_ID)
+                    )
+                    when (type) {
+                        "copy" -> item.addWorkflow(CopyWorkflow(ItemId(target)))
+                        "move" -> item.addWorkflow(MoveWorkflow(ItemId(target)))
+                        else -> {
+                        }
+                    }
                 }
             }
         }
