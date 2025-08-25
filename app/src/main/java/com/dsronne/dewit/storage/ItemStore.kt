@@ -1,5 +1,6 @@
 package com.dsronne.dewit.storage
 
+import com.dsronne.dewit.datamodel.CopyWorkflow
 import com.dsronne.dewit.datamodel.Item
 import com.dsronne.dewit.viewports.ItemBrowser
 import com.dsronne.dewit.datamodel.ItemId
@@ -53,18 +54,21 @@ class ItemStore(
             rootItem.add(child)
         }
         edit(rootItem)
-        val inbox = find(ItemId("inbox"))
-        val testItem = ListItem(Item("delete me"))
-        add(testItem)
-        inbox?.let {
+        find(ItemId("inbox"))?.let {
             it.addWorkflow(MoveWorkflow(ItemId("projects")))
             it.addWorkflow(MoveWorkflow(ItemId("references")))
             it.addWorkflow(MoveWorkflow(ItemId("todo")))
             it.addWorkflow(MoveWorkflow(ItemId("waiting")))
             it.addWorkflow(MoveWorkflow(ItemId("someday")))
-            it.add(testItem)
+            edit(it)
+        }
 
-            it.workflows.forEach { println("flow: " + it.name()) }
+        find(ItemId("projects"))?.let {
+            it.addWorkflow(MoveWorkflow(ItemId("references")))
+            it.addWorkflow(CopyWorkflow(ItemId("todo")))
+            it.addWorkflow(CopyWorkflow(ItemId("waiting")))
+            it.addWorkflow(MoveWorkflow(ItemId("someday")))
+            edit(it)
         }
     }
 
