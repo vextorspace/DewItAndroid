@@ -86,6 +86,7 @@ This is an android app that primarily manages lists
   ```
 
 ## Todo
+- need to store workflows in sqliteitemrepo
 - item in tree childmap needs to have a dropdown with all the workflows for the path that leads to that item in the tree.
 - selecting the workflow should execute it
 - items need a todo checkbox when they are added to the todo list or waiting list

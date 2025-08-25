@@ -5,16 +5,20 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.Spinner
+import android.widget.ArrayAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.dsronne.dewit.R
 import com.dsronne.dewit.datamodel.Item
 import com.dsronne.dewit.datamodel.ListItem
+import com.dsronne.dewit.datamodel.Path
 import com.dsronne.dewit.storage.ItemStore
 import android.widget.EditText
 import android.util.TypedValue
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.content.Context
+import com.dsronne.dewit.datamodel.ItemId
 
 /**
  * A simple tree-capable RecyclerView adapter for displaying nested ListItems.
@@ -25,7 +29,7 @@ class TreeAdapter(
 ) : RecyclerView.Adapter<TreeAdapter.TreeViewHolder>() {
     private val nodes = mutableListOf<TreeNode>()
 
-    data class TreeNode(val item: ListItem, val depth: Int, var isExpanded: Boolean = true)
+    data class TreeNode(val item: ListItem, val depth: Int, val path: Path, var isExpanded: Boolean = true)
 
     init {
         buildInitialNodes()
@@ -33,15 +37,16 @@ class TreeAdapter(
 
     private fun buildInitialNodes() {
         nodes.clear()
-        // recursively add all child nodes expanded by default
-        fun addNodes(item: ListItem, depth: Int) {
-            nodes.add(TreeNode(item, depth, isExpanded = true))
-            item.children.mapNotNull { itemStore.find(it) }.forEach {
-                addNodes(it, depth+1)
+        // recursively add all child nodes expanded by default, tracking path from root
+        fun addNodes(item: ListItem, depth: Int, path: Path) {
+            nodes.add(TreeNode(item, depth, path, isExpanded = true))
+            item.children.mapNotNull { itemStore.find(it) }.forEach { child ->
+                addNodes(child, depth + 1, path + child.id)
             }
         }
-        rootItem.children.mapNotNull { itemStore.find(it) }.forEach {
-            addNodes(it, 0)
+        val rootPath = Path.root() + rootItem.id
+        rootItem.children.mapNotNull { itemStore.find(it) }.forEach { child ->
+            addNodes(child, 0, rootPath + child.id)
         }
     }
 
@@ -64,6 +69,7 @@ class TreeAdapter(
         private val buttonAdd: ImageButton = itemView.findViewById(R.id.button_add_child)
         private val buttonEdit: ImageButton = itemView.findViewById(R.id.button_edit_item)
         private val buttonRemove: ImageButton = itemView.findViewById(R.id.button_remove_item)
+        private val spinnerWorkflows: Spinner = itemView.findViewById(R.id.spinner_workflows)
 
         fun bind(node: TreeNode) {
             labelView.text = node.item.label()
@@ -71,6 +77,23 @@ class TreeAdapter(
             params.width = node.depth * INDENT_WIDTH
             indentView.layoutParams = params
 
+            val workflows = itemStore.getWorkflows(node.path)
+            val inbox = itemStore.find(ItemId("inbox"))
+
+            println(inbox!!.workflows.size)
+
+            if (workflows.isEmpty()) {
+                println("" + node.item + " does not have workflows in its path: ${node.path}")
+                spinnerWorkflows.visibility = View.GONE
+            } else {
+                println("" + node.item + " does has workflows in its path")
+                spinnerWorkflows.visibility = View.VISIBLE
+                val wfAdapter = ArrayAdapter(itemView.context,
+                    android.R.layout.simple_spinner_item,
+                    workflows.map { it.name() })
+                wfAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                spinnerWorkflows.adapter = wfAdapter
+            }
             val children = itemStore.getChildrenOf(node.item.id)
             if (children.isEmpty()) {
                 buttonExpand.visibility = View.INVISIBLE
@@ -163,7 +186,7 @@ class TreeAdapter(
         val children = itemStore.getChildrenOf(node.item.id)
         val depth = node.depth + 1
         val insertPosition = position + 1
-        val newNodes = children.map { TreeNode(it, depth) }
+        val newNodes = children.map { child -> TreeNode(child, depth, node.path + child.id) }
         nodes.addAll(insertPosition, newNodes)
         notifyItemRangeInserted(insertPosition, newNodes.size)
         notifyItemChanged(position)
