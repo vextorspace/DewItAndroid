@@ -70,6 +70,16 @@ class ItemStore(
             it.addWorkflow(MoveWorkflow(ItemId("someday")))
             edit(it)
         }
+
+        find(ItemId("someday"))?.let {
+            it.addWorkflow(MoveWorkflow(ItemId("projects")))
+            edit(it)
+        }
+
+        find(ItemId("waiting"))?.let {
+            it.addWorkflow(CopyWorkflow(ItemId("todo")))
+            edit(it)
+        }
     }
 
     fun getWorkflows(path: Path): List<Workflow> {

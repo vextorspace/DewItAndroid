@@ -14,6 +14,14 @@ class WorkflowsForProjectManagementTest: BehaviorSpec({
         itemStore.initProgramManagement()
 
 
+        When("workflows for waiting checked") {
+            val workflows = itemStore.find(ItemId("waiting"))!!.workflows
+
+            Then("it should contain copy to todo") {
+                workflows shouldContain CopyWorkflow(ItemId("todo"))
+            }
+        }
+
         When("workflows for projects checked") {
             val workflows = itemStore.find(ItemId("projects"))!!.workflows
 
@@ -29,8 +37,16 @@ class WorkflowsForProjectManagementTest: BehaviorSpec({
             And("It should contain copy to waiting") {
                 workflows shouldContain CopyWorkflow(ItemId("waiting"))
             }
-
         }
+
+        When("workflows for someday checked") {
+            val workflows = itemStore.find(ItemId("someday"))!!.workflows
+
+            Then("it should contain move to projects") {
+                workflows shouldContain MoveWorkflow(ItemId("projects"))
+            }
+        }
+
         When("workflows for inbox checked") {
             val workflows = itemStore.find(ItemId("inbox"))!!.workflows
 
