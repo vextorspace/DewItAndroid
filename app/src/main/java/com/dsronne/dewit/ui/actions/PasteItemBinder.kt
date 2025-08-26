@@ -18,8 +18,10 @@ class PasteItemBinder(private val itemStore: ItemStore, private val model: TreeM
         targetProvider: () -> ItemId,
         onRebuild: (TreeModel.Change.Rebuild) -> Unit
     ) {
-        // Enable/disable based on clipboard presence
-        button.isEnabled = itemStore.lastRemoved() != null
+        // Enable/disable based on clipboard presence and gray out when disabled
+        val hasClipboard = itemStore.lastRemoved() != null
+        button.isEnabled = hasClipboard
+        button.alpha = if (hasClipboard) 1f else 0.3f
 
         button.setOnClickListener { _: View ->
             val pos = viewHolder.bindingAdapterPosition
@@ -35,6 +37,10 @@ class PasteItemBinder(private val itemStore: ItemStore, private val model: TreeM
 
             target.children.add(pasteId)
             itemStore.edit(target)
+            // Clear clipboard after a successful paste and gray out button
+            itemStore.clearRemoved()
+            button.isEnabled = false
+            button.alpha = 0.3f
             when (val change = model.rebuild()) {
                 is TreeModel.Change.Rebuild -> onRebuild(change)
                 else -> {}
@@ -42,4 +48,3 @@ class PasteItemBinder(private val itemStore: ItemStore, private val model: TreeM
         }
     }
 }
-

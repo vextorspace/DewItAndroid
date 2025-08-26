@@ -102,8 +102,15 @@ class ItemStore(
     }
 
     // Clipboard-like support for paste: remembers the last item unlinked via remove
-    fun rememberRemoved(itemId: ItemId) { lastRemovedItemId = itemId }
+    fun rememberRemoved(itemId: ItemId) {
+        lastRemovedItemId = itemId
+        notifyChanged()
+    }
     fun lastRemoved(): ItemId? = lastRemovedItemId
+    fun clearRemoved() {
+        lastRemovedItemId = null
+        notifyChanged()
+    }
 
     // Note: Deleting items entirely is not supported here to allow multi-parent relationships.
 

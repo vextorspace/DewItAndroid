@@ -19,11 +19,13 @@ class RootHeaderBinder(private val itemStore: ItemStore) {
 
     fun bind(
         buttonAdd: ImageButton,
+        buttonPaste: ImageButton,
         buttonEdit: ImageButton,
         buttonRemove: ImageButton,
         labelView: TextView,
         currentItem: ListItem,
         onChildAdded: (com.dsronne.dewit.datamodel.ItemId) -> Unit,
+        onPasted: (com.dsronne.dewit.datamodel.ItemId) -> Unit,
         onRemoved: () -> Unit
     ) {
         // Use the label's actual parent container to avoid mismatches.
@@ -74,6 +76,23 @@ class RootHeaderBinder(private val itemStore: ItemStore) {
                     false
                 }
             }
+        }
+
+        // Paste last-removed item as child of current root page
+        val hasClipboard = itemStore.lastRemoved() != null
+        buttonPaste.isEnabled = hasClipboard
+        buttonPaste.alpha = if (hasClipboard) 1f else 0.3f
+        buttonPaste.setOnClickListener {
+            val pasteId = itemStore.lastRemoved() ?: return@setOnClickListener
+            if (pasteId == currentItem.id) return@setOnClickListener
+            if (!currentItem.children.contains(pasteId)) {
+                currentItem.children.add(pasteId)
+                itemStore.edit(currentItem)
+            }
+            itemStore.clearRemoved()
+            buttonPaste.isEnabled = false
+            buttonPaste.alpha = 0.3f
+            onPasted(pasteId)
         }
 
         buttonRemove.setOnClickListener {

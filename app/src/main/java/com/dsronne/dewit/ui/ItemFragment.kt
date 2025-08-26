@@ -50,8 +50,16 @@ class ItemFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        // Rebuild this fragment's tree when store data changes anywhere.
-        changeListener = { if (this::adapter.isInitialized) adapter.rebuildTree() }
+        // Rebuild this fragment's tree when store data changes anywhere and refresh header controls.
+        changeListener = {
+            if (this::adapter.isInitialized) adapter.rebuildTree()
+            view?.let { v ->
+                val b = FragmentItemBinding.bind(v)
+                val hasClipboard = itemStore.lastRemoved() != null
+                b.buttonPasteChild.isEnabled = hasClipboard
+                b.buttonPasteChild.alpha = if (hasClipboard) 1f else 0.3f
+            }
+        }
         itemStore.addChangeListener(changeListener!!)
     }
 
@@ -67,6 +75,7 @@ class ItemFragment : Fragment() {
         rootHeaderBinder = RootHeaderBinder(itemStore).also { binder ->
             binder.bind(
                 buttonAdd = binding.buttonAddChild,
+                buttonPaste = binding.buttonPasteChild,
                 buttonEdit = binding.buttonEditItem,
                 buttonRemove = binding.buttonRemoveItem,
                 labelView = binding.textLabel,
@@ -78,6 +87,14 @@ class ItemFragment : Fragment() {
                         val pos = adapter.positionOf(id)
                         if (pos != -1) binding.childrenContainer.smoothScrollToPosition(pos)
                     }
+                },
+                onPasted = { id ->
+                    adapter.rebuildTreeAndFocusEdit(id)
+                    binding.childrenContainer.post {
+                        val pos = adapter.positionOf(id)
+                        if (pos != -1) binding.childrenContainer.smoothScrollToPosition(pos)
+                    }
+                    binding.buttonPasteChild.isEnabled = false
                 },
                 onRemoved = {
                     (activity as? RootPagerController)?.onRootChildRemoved(currentItem.id)
