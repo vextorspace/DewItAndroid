@@ -54,12 +54,12 @@ class SqliteItemRepository(context: Context) : ItemRepository {
                 val cvw = ContentValues().apply {
                     put(ItemDatabaseHelper.COL_WORKFLOW_ITEM_ID, item.id.id)
                     when (workflow) {
-                        is CopyWorkflow -> {
-                            put(ItemDatabaseHelper.COL_WORKFLOW_TYPE, "copy")
-                            put(ItemDatabaseHelper.COL_WORKFLOW_TARGET_ID, workflow.targetId.id)
-                        }
                         is MoveWorkflow -> {
                             put(ItemDatabaseHelper.COL_WORKFLOW_TYPE, "move")
+                            put(ItemDatabaseHelper.COL_WORKFLOW_TARGET_ID, workflow.targetId.id)
+                        }
+                        is CopyWorkflow -> {
+                            put(ItemDatabaseHelper.COL_WORKFLOW_TYPE, "copy")
                             put(ItemDatabaseHelper.COL_WORKFLOW_TARGET_ID, workflow.targetId.id)
                         }
                         else -> return@forEach

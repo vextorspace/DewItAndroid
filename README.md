@@ -86,7 +86,7 @@ This is an android app that primarily manages lists
   ```
 
 ## Todo
-- selecting a workflow in the drop-down in the treeadapter should execute it
+- after workflow changes list items they need to update in the ui.
 - rotation should not crash, just redo the view sideways.
 - items need a todo checkbox when they are added to the todo list or waiting list
 - when the todo is checked the item should cross off that list and go to a done list (in the top level)

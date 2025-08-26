@@ -22,6 +22,7 @@ class MoveWorkflow(targetId: ItemId) : CopyWorkflow(targetId) {
         itemStore.find(parentId)?.let { oldParent ->
             oldParent.children.remove(item.id)
             itemStore.edit(oldParent)
+            println("Removed ${item.label()} from ${parentId}")
             return true
         }
         return false

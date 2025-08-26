@@ -13,6 +13,7 @@ open class CopyWorkflow(val targetId: ItemId) : Workflow {
         targetItem?.let { targetItem ->
             targetItem.add(item)
             itemStore.edit(targetItem)
+            println("Copied ${item.label()} to ${targetItem.label()}")
             return true
         }
         return false
