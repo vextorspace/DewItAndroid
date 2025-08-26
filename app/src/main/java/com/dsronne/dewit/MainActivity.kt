@@ -45,18 +45,25 @@ class MainActivity : AppCompatActivity(), ItemStoreProvider, RootPagerController
         pagerAdapter = ItemPagerAdapter(this, rootChildren)
         viewPager.adapter = pagerAdapter
 
-        // Keep pages in sync with store changes (adds/moves/removals)
+        // Keep pages in sync with store changes (adds/moves/removals) without
+        // touching the adapter during layout passes.
         itemStore.addChangeListener {
-            val currentId = pagerAdapter.itemsSnapshot().getOrNull(viewPager.currentItem)?.id
+            val snapshot = pagerAdapter.itemsSnapshot()
+            val snapshotIds = snapshot.map { it.id }
             val newItems = itemStore.getChildrenOf(itemStore.root().id)
-            pagerAdapter.submitItems(newItems)
-            // If current page item no longer exists, clamp to last page
-            val newIndex = currentId?.let { id -> pagerAdapter.indexOf(id) } ?: -1
-            if (newIndex != -1) {
-                viewPager.setCurrentItem(newIndex, false)
-            } else if (newItems.isNotEmpty()) {
-                val safeIndex = minOf(viewPager.currentItem, newItems.lastIndex)
-                viewPager.setCurrentItem(safeIndex, false)
+            val newIds = newItems.map { it.id }
+            if (newIds != snapshotIds) {
+                viewPager.post {
+                    val currentId = snapshot.getOrNull(viewPager.currentItem)?.id
+                    pagerAdapter.submitItems(newItems)
+                    val newIndex = currentId?.let { id -> pagerAdapter.indexOf(id) } ?: -1
+                    if (newIndex != -1) {
+                        viewPager.setCurrentItem(newIndex, false)
+                    } else if (newItems.isNotEmpty()) {
+                        val safeIndex = minOf(viewPager.currentItem, newItems.lastIndex)
+                        viewPager.setCurrentItem(safeIndex, false)
+                    }
+                }
             }
         }
     }
@@ -64,11 +71,13 @@ class MainActivity : AppCompatActivity(), ItemStoreProvider, RootPagerController
     override fun itemStore(): ItemStore = itemStore
 
     override fun onRootChildRemoved(removedId: ItemId) {
-        val newItems = itemStore.getChildrenOf(itemStore.root().id)
-        pagerAdapter.submitItems(newItems)
-        if (newItems.isNotEmpty()) {
-            val current = minOf(viewPager.currentItem, newItems.lastIndex)
-            viewPager.setCurrentItem(current, false)
+        viewPager.post {
+            val newItems = itemStore.getChildrenOf(itemStore.root().id)
+            pagerAdapter.submitItems(newItems)
+            if (newItems.isNotEmpty()) {
+                val current = minOf(viewPager.currentItem, newItems.lastIndex)
+                viewPager.setCurrentItem(current, false)
+            }
         }
     }
 

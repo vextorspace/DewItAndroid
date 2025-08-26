@@ -47,6 +47,8 @@ class TreeAdapter(
         holder.bind(model.nodes[position])
     }
 
+    fun positionOf(id: ItemId): Int = model.nodes.indexOfFirst { it.item.id == id }
+
     inner class TreeViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val indentView: View = itemView.findViewById(R.id.indent_view)
         private val labelView: TextView = itemView.findViewById(R.id.text_label)
@@ -94,13 +96,21 @@ class TreeAdapter(
             removeItemBinder.bind(buttonRemove, this) { change -> applyRebuild(change) }
             // Auto-enter edit mode on newly added item
             if (pendingEditItemId != null && pendingEditItemId == node.item.id) {
-                pendingEditItemId = null
+                // Start editing immediately
                 editItemBinder.beginEdit(
                     this,
                     itemView as ViewGroup,
                     labelView,
                     node
                 ) { change -> notifyItemChanged(change.position) }
+                // Smooth scroll into view afterwards
+                (itemView.parent as? RecyclerView)?.post {
+                    val pos = bindingAdapterPosition
+                    if (pos != RecyclerView.NO_POSITION) {
+                        (itemView.parent as? RecyclerView)?.smoothScrollToPosition(pos)
+                    }
+                }
+                pendingEditItemId = null
             }
         }
     }

@@ -71,7 +71,14 @@ class ItemFragment : Fragment() {
                 buttonRemove = binding.buttonRemoveItem,
                 labelView = binding.textLabel,
                 currentItem = currentItem,
-                onChildAdded = { id -> adapter.rebuildTreeAndFocusEdit(id) },
+                onChildAdded = { id ->
+                    adapter.rebuildTreeAndFocusEdit(id)
+                    // Ensure visibility of the item about to be edited
+                    binding.childrenContainer.post {
+                        val pos = adapter.positionOf(id)
+                        if (pos != -1) binding.childrenContainer.smoothScrollToPosition(pos)
+                    }
+                },
                 onRemoved = {
                     (activity as? RootPagerController)?.onRootChildRemoved(currentItem.id)
                 }
