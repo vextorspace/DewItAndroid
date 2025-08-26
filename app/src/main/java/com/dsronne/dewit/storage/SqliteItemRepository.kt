@@ -3,6 +3,7 @@ package com.dsronne.dewit.storage
 import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
+import androidx.core.database.sqlite.transaction
 import com.dsronne.dewit.datamodel.ItemId
 import com.dsronne.dewit.datamodel.ListItem
 import com.dsronne.dewit.datamodel.Item
@@ -15,19 +16,18 @@ class SqliteItemRepository(context: Context) : ItemRepository {
 
     override fun save(item: ListItem) {
         val db = dbHelper.writableDatabase
-        db.beginTransaction()
-        try {
+        db.transaction {
             val values = ContentValues().apply {
                 put(ItemDatabaseHelper.COL_ID, item.id.id)
                 put(ItemDatabaseHelper.COL_LABEL, item.label())
             }
-            db.insertWithOnConflict(
+            insertWithOnConflict(
                 ItemDatabaseHelper.TABLE_ITEMS,
                 null,
                 values,
                 SQLiteDatabase.CONFLICT_REPLACE
             )
-            db.delete(
+            delete(
                 ItemDatabaseHelper.TABLE_CHILDREN,
                 "${ItemDatabaseHelper.COL_PARENT_ID} = ?",
                 arrayOf(item.id.id)
@@ -37,7 +37,7 @@ class SqliteItemRepository(context: Context) : ItemRepository {
                     put(ItemDatabaseHelper.COL_PARENT_ID, item.id.id)
                     put(ItemDatabaseHelper.COL_CHILD_ID, childId.id)
                 }
-                db.insertWithOnConflict(
+                insertWithOnConflict(
                     ItemDatabaseHelper.TABLE_CHILDREN,
                     null,
                     cv,
@@ -45,7 +45,7 @@ class SqliteItemRepository(context: Context) : ItemRepository {
                 )
             }
             // persist workflows for this item
-            db.delete(
+            delete(
                 ItemDatabaseHelper.TABLE_WORKFLOWS,
                 "${ItemDatabaseHelper.COL_WORKFLOW_ITEM_ID} = ?",
                 arrayOf(item.id.id)
@@ -65,16 +65,13 @@ class SqliteItemRepository(context: Context) : ItemRepository {
                         else -> return@forEach
                     }
                 }
-                db.insertWithOnConflict(
+                insertWithOnConflict(
                     ItemDatabaseHelper.TABLE_WORKFLOWS,
                     null,
                     cvw,
                     SQLiteDatabase.CONFLICT_IGNORE
                 )
             }
-            db.setTransactionSuccessful()
-        } finally {
-            db.endTransaction()
         }
     }
 

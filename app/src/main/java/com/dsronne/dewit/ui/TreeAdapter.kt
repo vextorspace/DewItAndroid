@@ -232,8 +232,14 @@ class TreeAdapter(
     }
 
     fun rebuildTree() {
+        val oldSize = nodes.size
         buildInitialNodes()
-        notifyDataSetChanged()
+        if (oldSize > 0) {
+            notifyItemRangeRemoved(0, oldSize)
+        }
+        if (nodes.isNotEmpty()) {
+            notifyItemRangeInserted(0, nodes.size)
+        }
     }
 
     companion object {
