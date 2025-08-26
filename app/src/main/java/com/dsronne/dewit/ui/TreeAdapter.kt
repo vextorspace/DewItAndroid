@@ -105,6 +105,8 @@ class TreeAdapter(
                         if (workflow.apply(itemStore, parentId, node.item)) {
                             println("Workflow applied successfully, rebuilding")
                             rebuildTree()
+                            // refresh spinner back to placeholder to update UI
+                            spinnerWorkflows.setSelection(0)
                         }
                     }
                     override fun onNothingSelected(parent: AdapterView<*>) {}
