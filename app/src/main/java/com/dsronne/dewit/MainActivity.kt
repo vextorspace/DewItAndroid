@@ -3,6 +3,8 @@ package com.dsronne.dewit
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import android.view.Menu
+import android.view.MenuItem
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.viewpager2.widget.ViewPager2
@@ -37,6 +39,7 @@ class MainActivity : AppCompatActivity(), ItemStoreProvider, RootPagerController
             insets
         }
 
+        setSupportActionBar(binding.topAppBar)
         viewPager = binding.viewPager
         val rootChildren = itemStore.getChildrenOf(itemStore.root().id)
         pagerAdapter = ItemPagerAdapter(this, rootChildren)
@@ -67,5 +70,32 @@ class MainActivity : AppCompatActivity(), ItemStoreProvider, RootPagerController
             val current = minOf(viewPager.currentItem, newItems.lastIndex)
             viewPager.setCurrentItem(current, false)
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.main_toolbar, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_add_top_level -> {
+                addTopLevelItem()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun addTopLevelItem() {
+        val child = com.dsronne.dewit.datamodel.ListItem(com.dsronne.dewit.datamodel.Item("new item"))
+        itemStore.add(child)
+        val root = itemStore.root()
+        root.add(child)
+        itemStore.edit(root)
+        val newItems = itemStore.getChildrenOf(root.id)
+        pagerAdapter.submitItems(newItems)
+        val idx = pagerAdapter.indexOf(child.id)
+        if (idx != -1) viewPager.setCurrentItem(idx, true)
     }
 }
