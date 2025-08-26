@@ -257,7 +257,7 @@ class TreeAdapter(
         val widthSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
         val heightSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
         tv.measure(widthSpec, heightSpec)
-        val arrowExtraPx = dpToPx(spinner.context, 24f)
+        val arrowExtraPx = dpToPx(spinner.context, 50f)
         val targetWidth = tv.measuredWidth + arrowExtraPx
         val lp = spinner.layoutParams
         if (lp.width != targetWidth) {
