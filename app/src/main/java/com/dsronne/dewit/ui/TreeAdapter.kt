@@ -6,22 +6,15 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Spinner
-import android.widget.ArrayAdapter
-import android.widget.AdapterView
 import androidx.recyclerview.widget.RecyclerView
 import com.dsronne.dewit.R
-import com.dsronne.dewit.datamodel.Item
 import com.dsronne.dewit.datamodel.ListItem
 import com.dsronne.dewit.storage.ItemStore
-import android.widget.EditText
-import android.util.TypedValue
-import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.InputMethodManager
-import android.content.Context
 import com.dsronne.dewit.ui.tree.TreeModel
 import com.dsronne.dewit.ui.tree.TreeModel.TreeNode
 import com.dsronne.dewit.ui.workflow.WorkflowSpinnerBinder
 import com.dsronne.dewit.ui.actions.AddChildBinder
+import com.dsronne.dewit.ui.actions.EditItemBinder
 
 /**
  * A simple tree-capable RecyclerView adapter for displaying nested ListItems.
@@ -33,6 +26,7 @@ class TreeAdapter(
     private val model = TreeModel(itemStore, rootItem)
     private val workflowBinder = WorkflowSpinnerBinder(itemStore)
     private val addChildBinder = AddChildBinder(model)
+    private val editItemBinder = EditItemBinder(model)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TreeViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -98,53 +92,8 @@ class TreeAdapter(
                 }
             }
             addChildBinder.bind(buttonAdd, this) { change -> applyRebuild(change) }
-            buttonEdit.setOnClickListener {
-                // inline edit in-place
-                val row = itemView as ViewGroup
-                // if already editing, commit
-                val editIndex = (0 until row.childCount).firstOrNull { row.getChildAt(it) is EditText } ?: -1
-                if (editIndex != -1) {
-                    val existing = row.getChildAt(editIndex) as EditText
-                    val newLabel = existing.text.toString()
-                    val pos = bindingAdapterPosition
-                    if (pos == RecyclerView.NO_POSITION) return@setOnClickListener
-                    when (val change = model.updateLabel(pos, newLabel)) {
-                        is TreeModel.Change.Update -> notifyItemChanged(change.position)
-                        else -> {}
-                    }
-                    row.removeViewAt(editIndex)
-                    labelView.text = newLabel
-                    row.addView(labelView, editIndex)
-                    val imm = itemView.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                    imm.hideSoftInputFromWindow(labelView.windowToken, 0)
-                    return@setOnClickListener
-                }
-                // start editing
-                val index = row.indexOfChild(labelView)
-                row.removeView(labelView)
-                val editText = EditText(itemView.context).apply {
-                    setText(node.item.label())
-                    layoutParams = labelView.layoutParams
-                    setTextSize(TypedValue.COMPLEX_UNIT_PX, labelView.textSize)
-                    typeface = labelView.typeface
-                    requestFocus()
-                    setSelectAllOnFocus(true)
-                    imeOptions = EditorInfo.IME_ACTION_DONE
-                }
-                row.addView(editText, index)
-                val imm = itemView.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT)
-                editText.setOnFocusChangeListener { _, hasFocus ->
-                    if (!hasFocus) buttonEdit.performClick()
-                }
-                editText.setOnEditorActionListener { _, actionId, _ ->
-                    if (actionId == EditorInfo.IME_ACTION_DONE) {
-                        buttonEdit.performClick()
-                        true
-                    } else {
-                        false
-                    }
-                }
+            editItemBinder.bind(buttonEdit, this, itemView as ViewGroup, labelView, node) { change ->
+                notifyItemChanged(change.position)
             }
             buttonRemove.setOnClickListener {
                 val pos = bindingAdapterPosition
