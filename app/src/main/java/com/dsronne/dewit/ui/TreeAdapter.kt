@@ -88,11 +88,14 @@ class TreeAdapter(
                 val wfNames = listOf("dewit...") + workflows.map { it.name() }
                 val wfAdapter = ArrayAdapter(
                     itemView.context,
-                    android.R.layout.simple_spinner_item,
+                    R.layout.spinner_item_workflow,
                     wfNames
                 )
                 wfAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                 spinnerWorkflows.adapter = wfAdapter
+                // Keep spinner width fixed to placeholder text so it doesn't grow
+                spinnerWorkflows.setSelection(0, false)
+                setSpinnerWidthToText(spinnerWorkflows, wfNames[0])
                 // process workflows when a real selection is made (skip placeholder)
                 var lastPos = 0
                 spinnerWorkflows.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -246,4 +249,22 @@ class TreeAdapter(
     companion object {
         private const val INDENT_WIDTH = 40
     }
+
+    private fun setSpinnerWidthToText(spinner: Spinner, text: String) {
+        val tv = LayoutInflater.from(spinner.context)
+            .inflate(R.layout.spinner_item_workflow, null, false) as TextView
+        tv.text = text
+        val widthSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+        val heightSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+        tv.measure(widthSpec, heightSpec)
+        val arrowExtraPx = dpToPx(spinner.context, 24f)
+        val targetWidth = tv.measuredWidth + arrowExtraPx
+        val lp = spinner.layoutParams
+        if (lp.width != targetWidth) {
+            lp.width = targetWidth
+            spinner.layoutParams = lp
+        }
+    }
+
+    private fun dpToPx(ctx: Context, dp: Float): Int = (dp * ctx.resources.displayMetrics.density).toInt()
 }
