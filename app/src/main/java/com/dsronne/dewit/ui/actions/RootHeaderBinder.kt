@@ -23,7 +23,7 @@ class RootHeaderBinder(private val itemStore: ItemStore) {
         buttonRemove: ImageButton,
         labelView: TextView,
         currentItem: ListItem,
-        onChildrenChanged: () -> Unit,
+        onChildAdded: (com.dsronne.dewit.datamodel.ItemId) -> Unit,
         onRemoved: () -> Unit
     ) {
         // Use the label's actual parent container to avoid mismatches.
@@ -34,7 +34,7 @@ class RootHeaderBinder(private val itemStore: ItemStore) {
             itemStore.add(child)
             currentItem.add(child)
             itemStore.edit(currentItem)
-            onChildrenChanged()
+            onChildAdded(child.id)
         }
 
         buttonEdit.setOnClickListener {

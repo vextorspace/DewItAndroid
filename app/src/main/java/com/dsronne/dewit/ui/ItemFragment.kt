@@ -7,13 +7,10 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.dsronne.dewit.databinding.FragmentItemBinding
-import com.dsronne.dewit.datamodel.Item
 import com.dsronne.dewit.datamodel.ItemId
 import com.dsronne.dewit.datamodel.ListItem
 import com.dsronne.dewit.storage.ItemStore
-import com.dsronne.dewit.ui.TreeAdapter
 import com.dsronne.dewit.ui.actions.RootHeaderBinder
-import com.dsronne.dewit.ui.RootPagerController
 
 /**
  * Fragment displaying an item and its nested children using a tree-capable RecyclerView adapter.
@@ -74,7 +71,7 @@ class ItemFragment : Fragment() {
                 buttonRemove = binding.buttonRemoveItem,
                 labelView = binding.textLabel,
                 currentItem = currentItem,
-                onChildrenChanged = { adapter.rebuildTree() },
+                onChildAdded = { id -> adapter.rebuildTreeAndFocusEdit(id) },
                 onRemoved = {
                     (activity as? RootPagerController)?.onRootChildRemoved(currentItem.id)
                 }

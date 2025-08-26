@@ -112,6 +112,11 @@ class TreeAdapter(
         }
     }
 
+    fun rebuildTreeAndFocusEdit(targetId: ItemId) {
+        pendingEditItemId = targetId
+        rebuildTree()
+    }
+
     private fun applyRebuild(change: TreeModel.Change.Rebuild) {
         if (change.oldSize > 0) notifyItemRangeRemoved(0, change.oldSize)
         if (model.nodes.isNotEmpty()) notifyItemRangeInserted(0, model.nodes.size)
