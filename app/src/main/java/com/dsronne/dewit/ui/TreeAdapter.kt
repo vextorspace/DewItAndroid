@@ -16,6 +16,7 @@ import com.dsronne.dewit.ui.workflow.WorkflowSpinnerBinder
 import com.dsronne.dewit.ui.actions.AddChildBinder
 import com.dsronne.dewit.ui.actions.EditItemBinder
 import com.dsronne.dewit.ui.actions.RemoveItemBinder
+import com.dsronne.dewit.ui.actions.ExpandCollapseBinder
 
 /**
  * A simple tree-capable RecyclerView adapter for displaying nested ListItems.
@@ -29,6 +30,7 @@ class TreeAdapter(
     private val addChildBinder = AddChildBinder(model)
     private val editItemBinder = EditItemBinder(model)
     private val removeItemBinder = RemoveItemBinder(model)
+    private val expandCollapseBinder = ExpandCollapseBinder(model)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TreeViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -61,36 +63,22 @@ class TreeAdapter(
                 rebuildTree()
             }
             val children = itemStore.getChildrenOf(node.item.id)
-            if (children.isEmpty()) {
-                buttonExpand.visibility = View.INVISIBLE
-            } else {
-                buttonExpand.visibility = View.VISIBLE
-                buttonExpand.setImageResource(
-                    if (node.isExpanded) android.R.drawable.arrow_up_float
-                    else android.R.drawable.arrow_down_float
-                )
-            }
-            buttonExpand.setOnClickListener {
-                val pos = bindingAdapterPosition
-                if (pos == RecyclerView.NO_POSITION) return@setOnClickListener
-                if (node.isExpanded) {
-                    when (val change = model.collapseNode(pos)) {
-                        is TreeModel.Change.Remove -> {
-                            notifyItemRangeRemoved(change.position, change.count)
-                            notifyItemChanged(pos)
-                        }
-                        is TreeModel.Change.None -> {}
-                        else -> {}
+            expandCollapseBinder.bind(
+                buttonExpand,
+                this,
+                hasChildren = children.isNotEmpty(),
+                isExpanded = node.isExpanded
+            ) { change, pos ->
+                when (change) {
+                    is TreeModel.Change.Insert -> {
+                        notifyItemRangeInserted(change.position, change.count)
+                        notifyItemChanged(pos)
                     }
-                } else {
-                    when (val change = model.expandNode(pos)) {
-                        is TreeModel.Change.Insert -> {
-                            notifyItemRangeInserted(change.position, change.count)
-                            notifyItemChanged(pos)
-                        }
-                        is TreeModel.Change.None -> {}
-                        else -> {}
+                    is TreeModel.Change.Remove -> {
+                        notifyItemRangeRemoved(change.position, change.count)
+                        notifyItemChanged(pos)
                     }
+                    else -> {}
                 }
             }
             addChildBinder.bind(buttonAdd, this) { change -> applyRebuild(change) }
