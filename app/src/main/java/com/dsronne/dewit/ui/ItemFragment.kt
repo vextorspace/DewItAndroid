@@ -73,7 +73,6 @@ class ItemFragment : Fragment() {
                 buttonEdit = binding.buttonEditItem,
                 buttonRemove = binding.buttonRemoveItem,
                 labelView = binding.textLabel,
-                container = binding.root as ViewGroup,
                 currentItem = currentItem,
                 onChildrenChanged = { adapter.rebuildTree() },
                 onRemoved = {
