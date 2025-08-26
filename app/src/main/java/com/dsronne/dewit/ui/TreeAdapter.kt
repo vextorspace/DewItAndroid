@@ -15,6 +15,7 @@ import com.dsronne.dewit.ui.tree.TreeModel.TreeNode
 import com.dsronne.dewit.ui.workflow.WorkflowSpinnerBinder
 import com.dsronne.dewit.ui.actions.AddChildBinder
 import com.dsronne.dewit.ui.actions.EditItemBinder
+import com.dsronne.dewit.ui.actions.RemoveItemBinder
 
 /**
  * A simple tree-capable RecyclerView adapter for displaying nested ListItems.
@@ -27,6 +28,7 @@ class TreeAdapter(
     private val workflowBinder = WorkflowSpinnerBinder(itemStore)
     private val addChildBinder = AddChildBinder(model)
     private val editItemBinder = EditItemBinder(model)
+    private val removeItemBinder = RemoveItemBinder(model)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TreeViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -95,14 +97,7 @@ class TreeAdapter(
             editItemBinder.bind(buttonEdit, this, itemView as ViewGroup, labelView, node) { change ->
                 notifyItemChanged(change.position)
             }
-            buttonRemove.setOnClickListener {
-                val pos = bindingAdapterPosition
-                if (pos == RecyclerView.NO_POSITION) return@setOnClickListener
-                when (val change = model.removeAt(pos)) {
-                    is TreeModel.Change.Rebuild -> applyRebuild(change)
-                    else -> {}
-                }
-            }
+            removeItemBinder.bind(buttonRemove, this) { change -> applyRebuild(change) }
         }
     }
 
