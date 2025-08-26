@@ -5,6 +5,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.viewpager2.widget.ViewPager2
@@ -92,8 +93,23 @@ class MainActivity : AppCompatActivity(), ItemStoreProvider, RootPagerController
                 addTopLevelItem()
                 true
             }
+            R.id.action_init_program_mgmt -> {
+                showInitProgramManagementDialog()
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun showInitProgramManagementDialog() {
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.confirm_init_title)
+            .setMessage(R.string.confirm_init_message)
+            .setPositiveButton(R.string.confirm) { _, _ ->
+                itemStore.initProgramManagement()
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
     }
 
     private fun addTopLevelItem() {

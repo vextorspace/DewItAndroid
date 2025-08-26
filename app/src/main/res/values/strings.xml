@@ -5,4 +5,9 @@
     <string name="edit_item">Edit Item</string>
     <string name="expand_collapse">Expand/Collapse</string>
     <string name="paste_item">Paste Item</string>
+    <string name="create_new_project_management">Create New Project Management</string>
+    <string name="confirm_init_title">Initialize Project Management?</string>
+    <string name="confirm_init_message">This will create default categories (inbox, todo, projects, waiting, someday, references). Continue?</string>
+    <string name="confirm">Create</string>
+    <string name="cancel">Cancel</string>
 </resources>
