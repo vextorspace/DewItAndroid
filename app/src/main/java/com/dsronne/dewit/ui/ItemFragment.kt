@@ -12,6 +12,8 @@ import com.dsronne.dewit.datamodel.ItemId
 import com.dsronne.dewit.datamodel.ListItem
 import com.dsronne.dewit.storage.ItemStore
 import com.dsronne.dewit.ui.TreeAdapter
+import com.dsronne.dewit.ui.actions.RootHeaderBinder
+import com.dsronne.dewit.ui.RootPagerController
 
 /**
  * Fragment displaying an item and its nested children using a tree-capable RecyclerView adapter.
@@ -22,6 +24,7 @@ class ItemFragment : Fragment() {
     private lateinit var currentItem: ListItem
     private lateinit var adapter: TreeAdapter
     private var changeListener: (() -> Unit)? = null
+    private var rootHeaderBinder: RootHeaderBinder? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,12 +67,19 @@ class ItemFragment : Fragment() {
     private fun bindRootView(view: View) {
         val binding = FragmentItemBinding.bind(view)
         binding.textLabel.text = currentItem.label()
-        binding.buttonAddChild.setOnClickListener {
-            val child = ListItem(Item("new item"))
-            itemStore.add(child)
-            currentItem.add(child)
-            itemStore.edit(currentItem)
-            adapter.rebuildTree()
+        rootHeaderBinder = RootHeaderBinder(itemStore).also { binder ->
+            binder.bind(
+                buttonAdd = binding.buttonAddChild,
+                buttonEdit = binding.buttonEditItem,
+                buttonRemove = binding.buttonRemoveItem,
+                labelView = binding.textLabel,
+                container = binding.root as ViewGroup,
+                currentItem = currentItem,
+                onChildrenChanged = { adapter.rebuildTree() },
+                onRemoved = {
+                    (activity as? RootPagerController)?.onRootChildRemoved(currentItem.id)
+                }
+            )
         }
         binding.childrenContainer.layoutManager =
             LinearLayoutManager(context)

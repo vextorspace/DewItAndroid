@@ -10,10 +10,11 @@ import com.dsronne.dewit.storage.SqliteItemRepository
 import com.dsronne.dewit.storage.ItemStore
 import com.dsronne.dewit.ui.ItemPagerAdapter
 import com.dsronne.dewit.ui.ItemStoreProvider
+import com.dsronne.dewit.ui.RootPagerController
 import com.dsronne.dewit.databinding.ActivityMainBinding
 import com.dsronne.dewit.datamodel.ItemId
 
-class MainActivity : AppCompatActivity(), ItemStoreProvider {
+class MainActivity : AppCompatActivity(), ItemStoreProvider, RootPagerController {
     private val itemStore: ItemStore by lazy {
         val repository = SqliteItemRepository(applicationContext)
         val store = ItemStore(repository)
@@ -22,6 +23,9 @@ class MainActivity : AppCompatActivity(), ItemStoreProvider {
         }
         store
     }
+    private lateinit var viewPager: ViewPager2
+    private lateinit var pagerAdapter: ItemPagerAdapter
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -33,10 +37,35 @@ class MainActivity : AppCompatActivity(), ItemStoreProvider {
             insets
         }
 
+        viewPager = binding.viewPager
         val rootChildren = itemStore.getChildrenOf(itemStore.root().id)
+        pagerAdapter = ItemPagerAdapter(this, rootChildren)
+        viewPager.adapter = pagerAdapter
 
-        binding.viewPager.adapter = ItemPagerAdapter(this, rootChildren)
+        // Keep pages in sync with store changes (adds/moves/removals)
+        itemStore.addChangeListener {
+            val currentId = pagerAdapter.itemsSnapshot().getOrNull(viewPager.currentItem)?.id
+            val newItems = itemStore.getChildrenOf(itemStore.root().id)
+            pagerAdapter.submitItems(newItems)
+            // If current page item no longer exists, clamp to last page
+            val newIndex = currentId?.let { id -> pagerAdapter.indexOf(id) } ?: -1
+            if (newIndex != -1) {
+                viewPager.setCurrentItem(newIndex, false)
+            } else if (newItems.isNotEmpty()) {
+                val safeIndex = minOf(viewPager.currentItem, newItems.lastIndex)
+                viewPager.setCurrentItem(safeIndex, false)
+            }
+        }
     }
 
     override fun itemStore(): ItemStore = itemStore
+
+    override fun onRootChildRemoved(removedId: ItemId) {
+        val newItems = itemStore.getChildrenOf(itemStore.root().id)
+        pagerAdapter.submitItems(newItems)
+        if (newItems.isNotEmpty()) {
+            val current = minOf(viewPager.currentItem, newItems.lastIndex)
+            viewPager.setCurrentItem(current, false)
+        }
+    }
 }
