@@ -16,6 +16,7 @@ internal class ItemDatabaseHelper(context: Context) : SQLiteOpenHelper(context, 
             "CREATE TABLE $TABLE_CHILDREN (" +
                     "$COL_PARENT_ID TEXT NOT NULL, " +
                     "$COL_CHILD_ID TEXT NOT NULL, " +
+                    "$COL_POSITION INTEGER NOT NULL, " +
                     "PRIMARY KEY($COL_PARENT_ID, $COL_CHILD_ID), " +
                     "FOREIGN KEY($COL_PARENT_ID) REFERENCES $TABLE_ITEMS($COL_ID), " +
                     "FOREIGN KEY($COL_CHILD_ID) REFERENCES $TABLE_ITEMS($COL_ID)" +
@@ -41,7 +42,7 @@ internal class ItemDatabaseHelper(context: Context) : SQLiteOpenHelper(context, 
 
     companion object {
         private const val DATABASE_NAME = "items.db"
-        private const val DATABASE_VERSION = 2
+        private const val DATABASE_VERSION = 3
 
         const val TABLE_ITEMS = "items"
         const val COL_ID = "id"
@@ -50,6 +51,7 @@ internal class ItemDatabaseHelper(context: Context) : SQLiteOpenHelper(context, 
         const val TABLE_CHILDREN = "item_children"
         const val COL_PARENT_ID = "parent_id"
         const val COL_CHILD_ID = "child_id"
+        const val COL_POSITION = "position"
         const val TABLE_WORKFLOWS = "item_workflows"
         const val COL_WORKFLOW_ITEM_ID = "item_id"
         const val COL_WORKFLOW_TYPE = "workflow_type"

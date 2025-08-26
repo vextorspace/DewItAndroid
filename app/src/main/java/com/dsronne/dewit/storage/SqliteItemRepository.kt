@@ -32,10 +32,11 @@ class SqliteItemRepository(context: Context) : ItemRepository {
                 "${ItemDatabaseHelper.COL_PARENT_ID} = ?",
                 arrayOf(item.id.id)
             )
-            item.children.forEach { childId ->
+            item.children.forEachIndexed { index, childId ->
                 val cv = ContentValues().apply {
                     put(ItemDatabaseHelper.COL_PARENT_ID, item.id.id)
                     put(ItemDatabaseHelper.COL_CHILD_ID, childId.id)
+                    put(ItemDatabaseHelper.COL_POSITION, index)
                 }
                 insertWithOnConflict(
                     ItemDatabaseHelper.TABLE_CHILDREN,
@@ -85,7 +86,8 @@ class SqliteItemRepository(context: Context) : ItemRepository {
             val label = cursor.getString(cursor.getColumnIndexOrThrow(ItemDatabaseHelper.COL_LABEL))
             val item = ListItem(Item(label, ItemId(id.id)))
             db.rawQuery(
-                "SELECT ${ItemDatabaseHelper.COL_CHILD_ID} FROM ${ItemDatabaseHelper.TABLE_CHILDREN} WHERE ${ItemDatabaseHelper.COL_PARENT_ID} = ?",
+                "SELECT ${ItemDatabaseHelper.COL_CHILD_ID} FROM ${ItemDatabaseHelper.TABLE_CHILDREN} " +
+                        "WHERE ${ItemDatabaseHelper.COL_PARENT_ID} = ? ORDER BY ${ItemDatabaseHelper.COL_POSITION} ASC",
                 arrayOf(id.id)
             ).use { childCursor ->
                 while (childCursor.moveToNext()) {
@@ -137,7 +139,8 @@ class SqliteItemRepository(context: Context) : ItemRepository {
         }
         items.forEach { item ->
             db.rawQuery(
-                "SELECT ${ItemDatabaseHelper.COL_CHILD_ID} FROM ${ItemDatabaseHelper.TABLE_CHILDREN} WHERE ${ItemDatabaseHelper.COL_PARENT_ID} = ?",
+                "SELECT ${ItemDatabaseHelper.COL_CHILD_ID} FROM ${ItemDatabaseHelper.TABLE_CHILDREN} " +
+                        "WHERE ${ItemDatabaseHelper.COL_PARENT_ID} = ? ORDER BY ${ItemDatabaseHelper.COL_POSITION} ASC",
                 arrayOf(item.id.id)
             ).use { childCursor ->
                 while (childCursor.moveToNext()) {
