@@ -15,6 +15,7 @@ class TreeModel(
     data class TreeNode(val item: ListItem, val depth: Int, val path: Path, var isExpanded: Boolean = true)
 
     val nodes: MutableList<TreeNode> = mutableListOf()
+    var lastAddedChildId: com.dsronne.dewit.datamodel.ItemId? = null
 
     sealed class Change {
         data class Insert(val position: Int, val count: Int) : Change()
@@ -86,6 +87,7 @@ class TreeModel(
         itemStore.add(newChild)
         node.item.add(newChild)
         itemStore.edit(node.item)
+        lastAddedChildId = newChild.id
         return rebuild()
     }
 

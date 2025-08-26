@@ -18,6 +18,7 @@ import com.dsronne.dewit.ui.actions.EditItemBinder
 import com.dsronne.dewit.ui.actions.RemoveItemBinder
 import com.dsronne.dewit.ui.actions.ExpandCollapseBinder
 import com.dsronne.dewit.ui.config.UiConfig
+import com.dsronne.dewit.datamodel.ItemId
 
 /**
  * A simple tree-capable RecyclerView adapter for displaying nested ListItems.
@@ -32,6 +33,7 @@ class TreeAdapter(
     private val editItemBinder = EditItemBinder(model)
     private val removeItemBinder = RemoveItemBinder(model)
     private val expandCollapseBinder = ExpandCollapseBinder(model)
+    private var pendingEditItemId: ItemId? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TreeViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -82,11 +84,24 @@ class TreeAdapter(
                     else -> {}
                 }
             }
-            addChildBinder.bind(buttonAdd, this) { change -> applyRebuild(change) }
+            addChildBinder.bind(buttonAdd, this) { change, newId ->
+                pendingEditItemId = newId
+                applyRebuild(change)
+            }
             editItemBinder.bind(buttonEdit, this, itemView as ViewGroup, labelView, node) { change ->
                 notifyItemChanged(change.position)
             }
             removeItemBinder.bind(buttonRemove, this) { change -> applyRebuild(change) }
+            // Auto-enter edit mode on newly added item
+            if (pendingEditItemId != null && pendingEditItemId == node.item.id) {
+                pendingEditItemId = null
+                editItemBinder.beginEdit(
+                    this,
+                    itemView as ViewGroup,
+                    labelView,
+                    node
+                ) { change -> notifyItemChanged(change.position) }
+            }
         }
     }
 

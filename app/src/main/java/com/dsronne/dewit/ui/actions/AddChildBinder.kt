@@ -13,16 +13,15 @@ class AddChildBinder(private val model: TreeModel) {
     fun bind(
         button: ImageButton,
         viewHolder: RecyclerView.ViewHolder,
-        onRebuild: (TreeModel.Change.Rebuild) -> Unit
+        onRebuild: (TreeModel.Change.Rebuild, com.dsronne.dewit.datamodel.ItemId?) -> Unit
     ) {
         button.setOnClickListener { v: View ->
             val pos = viewHolder.bindingAdapterPosition
             if (pos == RecyclerView.NO_POSITION) return@setOnClickListener
             when (val change = model.addChildTo(pos)) {
-                is TreeModel.Change.Rebuild -> onRebuild(change)
+                is TreeModel.Change.Rebuild -> onRebuild(change, model.lastAddedChildId)
                 else -> {}
             }
         }
     }
 }
-
