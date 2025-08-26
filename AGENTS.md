@@ -37,6 +37,7 @@ Use Android Studio for iterative development; Gradle wrapper commands above shou
 - Unit tests live in `app/src/test/...`; instrumented UI tests in `app/src/androidTest/...`.
 - Naming: `SomethingTest.kt`; test names should be descriptive (e.g., `shouldCopyItemToPath`).
 - Example: run all unit tests with `./gradlew test` or per-variant as above.
+- Use BehaviorSpec for new tests
 
 ## Commit & Pull Request Guidelines
 
