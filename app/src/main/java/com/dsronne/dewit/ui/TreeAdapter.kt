@@ -123,8 +123,9 @@ class TreeAdapter(
                 )
             }
             buttonExpand.setOnClickListener {
-                if (node.isExpanded) collapseNode(adapterPosition)
-                else expandNode(adapterPosition)
+                val pos = bindingAdapterPosition
+                if (pos == RecyclerView.NO_POSITION) return@setOnClickListener
+                if (node.isExpanded) collapseNode(pos) else expandNode(pos)
             }
             buttonAdd.setOnClickListener {
                 val child = ListItem(Item("new item"))
