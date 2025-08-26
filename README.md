@@ -86,9 +86,8 @@ This is an android app that primarily manages lists
   ```
 
 ## Todo
-- add a placeholder to index 0 of the workflows in treeadapter.kt that says dewit...
-- make the spinner just wide enough for the placeholder
 - after running a workflow from the spinner in treeadapter.kt they need to update in the ui.
+- make the spinner just wide enough for the placeholder
 - rotation should not crash, just redo the view sideways.
 - items need a todo checkbox when they are added to the todo list or waiting list
 - when the todo is checked the item should cross off that list and go to a done list (in the top level)
