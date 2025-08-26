@@ -21,6 +21,7 @@ import android.content.Context
 import com.dsronne.dewit.ui.tree.TreeModel
 import com.dsronne.dewit.ui.tree.TreeModel.TreeNode
 import com.dsronne.dewit.ui.workflow.WorkflowSpinnerBinder
+import com.dsronne.dewit.ui.actions.AddChildBinder
 
 /**
  * A simple tree-capable RecyclerView adapter for displaying nested ListItems.
@@ -31,6 +32,7 @@ class TreeAdapter(
 ) : RecyclerView.Adapter<TreeAdapter.TreeViewHolder>() {
     private val model = TreeModel(itemStore, rootItem)
     private val workflowBinder = WorkflowSpinnerBinder(itemStore)
+    private val addChildBinder = AddChildBinder(model)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TreeViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -95,14 +97,7 @@ class TreeAdapter(
                     }
                 }
             }
-            buttonAdd.setOnClickListener {
-                val pos = bindingAdapterPosition
-                if (pos == RecyclerView.NO_POSITION) return@setOnClickListener
-                when (val change = model.addChildTo(pos)) {
-                    is TreeModel.Change.Rebuild -> applyRebuild(change)
-                    else -> {}
-                }
-            }
+            addChildBinder.bind(buttonAdd, this) { change -> applyRebuild(change) }
             buttonEdit.setOnClickListener {
                 // inline edit in-place
                 val row = itemView as ViewGroup
