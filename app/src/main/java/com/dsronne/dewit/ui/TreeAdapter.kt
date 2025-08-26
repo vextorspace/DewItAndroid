@@ -20,6 +20,7 @@ import android.view.inputmethod.InputMethodManager
 import android.content.Context
 import com.dsronne.dewit.ui.tree.TreeModel
 import com.dsronne.dewit.ui.tree.TreeModel.TreeNode
+import com.dsronne.dewit.ui.workflow.WorkflowSpinnerBinder
 
 /**
  * A simple tree-capable RecyclerView adapter for displaying nested ListItems.
@@ -29,6 +30,7 @@ class TreeAdapter(
     private val rootItem: ListItem
 ) : RecyclerView.Adapter<TreeAdapter.TreeViewHolder>() {
     private val model = TreeModel(itemStore, rootItem)
+    private val workflowBinder = WorkflowSpinnerBinder(itemStore)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TreeViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -57,42 +59,8 @@ class TreeAdapter(
             params.width = node.depth * INDENT_WIDTH
             indentView.layoutParams = params
 
-            val workflows = itemStore.getWorkflows(node.path)
-
-            if (workflows.isEmpty()) {
-                spinnerWorkflows.visibility = View.GONE
-            } else {
-                spinnerWorkflows.visibility = View.VISIBLE
-                // add a placeholder at index 0
-                val wfNames = listOf("dewit...") + workflows.map { it.name() }
-                val wfAdapter = ArrayAdapter(
-                    itemView.context,
-                    R.layout.spinner_item_workflow,
-                    wfNames
-                )
-                wfAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                spinnerWorkflows.adapter = wfAdapter
-                // Keep spinner width fixed to placeholder text so it doesn't grow
-                spinnerWorkflows.setSelection(0, false)
-                setSpinnerWidthToText(spinnerWorkflows, wfNames[0])
-                // process workflows when a real selection is made (skip placeholder)
-                var lastPos = 0
-                spinnerWorkflows.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                    override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-                        if (position == lastPos || position == 0) return
-                        lastPos = position
-                        val workflow = workflows[position - 1]
-                        val parentPath = node.path.parent()
-                        val parentId = parentPath[parentPath.size() - 1]
-                        if (workflow.apply(itemStore, parentId, node.item)) {
-                            println("Workflow applied successfully, rebuilding")
-                            rebuildTree()
-                            // refresh spinner back to placeholder to update UI
-                            spinnerWorkflows.setSelection(0)
-                        }
-                    }
-                    override fun onNothingSelected(parent: AdapterView<*>) {}
-                }
+            workflowBinder.bind(spinnerWorkflows, node) {
+                rebuildTree()
             }
             val children = itemStore.getChildrenOf(node.item.id)
             if (children.isEmpty()) {
@@ -209,22 +177,4 @@ class TreeAdapter(
     companion object {
         private const val INDENT_WIDTH = 40
     }
-
-    private fun setSpinnerWidthToText(spinner: Spinner, text: String) {
-        val tv = LayoutInflater.from(spinner.context)
-            .inflate(R.layout.spinner_item_workflow, null, false) as TextView
-        tv.text = text
-        val widthSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
-        val heightSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
-        tv.measure(widthSpec, heightSpec)
-        val arrowExtraPx = dpToPx(spinner.context, 50f)
-        val targetWidth = tv.measuredWidth + arrowExtraPx
-        val lp = spinner.layoutParams
-        if (lp.width != targetWidth) {
-            lp.width = targetWidth
-            spinner.layoutParams = lp
-        }
-    }
-
-    private fun dpToPx(ctx: Context, dp: Float): Int = (dp * ctx.resources.displayMetrics.density).toInt()
 }
