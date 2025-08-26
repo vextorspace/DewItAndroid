@@ -84,21 +84,26 @@ class TreeAdapter(
                 spinnerWorkflows.visibility = View.GONE
             } else {
                 spinnerWorkflows.visibility = View.VISIBLE
-                val wfAdapter = ArrayAdapter(itemView.context,
+                // add a placeholder at index 0
+                val wfNames = listOf("dewit...") + workflows.map { it.name() }
+                val wfAdapter = ArrayAdapter(
+                    itemView.context,
                     android.R.layout.simple_spinner_item,
-                    workflows.map { it.name() })
+                    wfNames
+                )
                 wfAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                 spinnerWorkflows.adapter = wfAdapter
-                // process workflows when selection actually changes
-                var lastPos = spinnerWorkflows.selectedItemPosition
+                // process workflows when a real selection is made (skip placeholder)
+                var lastPos = 0
                 spinnerWorkflows.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                     override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-                        if (position == lastPos) return
+                        if (position == lastPos || position == 0) return
                         lastPos = position
-                        val workflow = workflows[position]
+                        val workflow = workflows[position - 1]
                         val parentPath = node.path.parent()
                         val parentId = parentPath[parentPath.size() - 1]
                         if (workflow.apply(itemStore, parentId, node.item)) {
+                            println("Workflow applied successfully, rebuilding")
                             rebuildTree()
                         }
                     }
