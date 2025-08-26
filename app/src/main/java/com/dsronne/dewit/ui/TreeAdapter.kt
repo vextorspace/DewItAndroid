@@ -12,14 +12,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.dsronne.dewit.R
 import com.dsronne.dewit.datamodel.Item
 import com.dsronne.dewit.datamodel.ListItem
-import com.dsronne.dewit.datamodel.Path
 import com.dsronne.dewit.storage.ItemStore
 import android.widget.EditText
 import android.util.TypedValue
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.content.Context
-import com.dsronne.dewit.datamodel.ItemId
+import com.dsronne.dewit.ui.tree.TreeModel
+import com.dsronne.dewit.ui.tree.TreeModel.TreeNode
 
 /**
  * A simple tree-capable RecyclerView adapter for displaying nested ListItems.
@@ -28,28 +28,7 @@ class TreeAdapter(
     private val itemStore: ItemStore,
     private val rootItem: ListItem
 ) : RecyclerView.Adapter<TreeAdapter.TreeViewHolder>() {
-    private val nodes = mutableListOf<TreeNode>()
-
-    data class TreeNode(val item: ListItem, val depth: Int, val path: Path, var isExpanded: Boolean = true)
-
-    init {
-        buildInitialNodes()
-    }
-
-    private fun buildInitialNodes() {
-        nodes.clear()
-        // recursively add all child nodes expanded by default, tracking path from root
-        fun addNodes(item: ListItem, depth: Int, path: Path) {
-            nodes.add(TreeNode(item, depth, path, isExpanded = true))
-            item.children.mapNotNull { itemStore.find(it) }.forEach { child ->
-                addNodes(child, depth + 1, path + child.id)
-            }
-        }
-        val rootPath = Path.root() + rootItem.id
-        rootItem.children.mapNotNull { itemStore.find(it) }.forEach { child ->
-            addNodes(child, 0, rootPath + child.id)
-        }
-    }
+    private val model = TreeModel(itemStore, rootItem)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TreeViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -57,10 +36,10 @@ class TreeAdapter(
         return TreeViewHolder(view)
     }
 
-    override fun getItemCount(): Int = nodes.size
+    override fun getItemCount(): Int = model.nodes.size
 
     override fun onBindViewHolder(holder: TreeViewHolder, position: Int) {
-        holder.bind(nodes[position])
+        holder.bind(model.nodes[position])
     }
 
     inner class TreeViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -128,14 +107,33 @@ class TreeAdapter(
             buttonExpand.setOnClickListener {
                 val pos = bindingAdapterPosition
                 if (pos == RecyclerView.NO_POSITION) return@setOnClickListener
-                if (node.isExpanded) collapseNode(pos) else expandNode(pos)
+                if (node.isExpanded) {
+                    when (val change = model.collapseNode(pos)) {
+                        is TreeModel.Change.Remove -> {
+                            notifyItemRangeRemoved(change.position, change.count)
+                            notifyItemChanged(pos)
+                        }
+                        is TreeModel.Change.None -> {}
+                        else -> {}
+                    }
+                } else {
+                    when (val change = model.expandNode(pos)) {
+                        is TreeModel.Change.Insert -> {
+                            notifyItemRangeInserted(change.position, change.count)
+                            notifyItemChanged(pos)
+                        }
+                        is TreeModel.Change.None -> {}
+                        else -> {}
+                    }
+                }
             }
             buttonAdd.setOnClickListener {
-                val child = ListItem(Item("new item"))
-                itemStore.add(child)
-                node.item.add(child)
-                itemStore.edit(node.item)
-                rebuildTree()
+                val pos = bindingAdapterPosition
+                if (pos == RecyclerView.NO_POSITION) return@setOnClickListener
+                when (val change = model.addChildTo(pos)) {
+                    is TreeModel.Change.Rebuild -> applyRebuild(change)
+                    else -> {}
+                }
             }
             buttonEdit.setOnClickListener {
                 // inline edit in-place
@@ -145,8 +143,12 @@ class TreeAdapter(
                 if (editIndex != -1) {
                     val existing = row.getChildAt(editIndex) as EditText
                     val newLabel = existing.text.toString()
-                    node.item.data.label = newLabel
-                    itemStore.edit(node.item)
+                    val pos = bindingAdapterPosition
+                    if (pos == RecyclerView.NO_POSITION) return@setOnClickListener
+                    when (val change = model.updateLabel(pos, newLabel)) {
+                        is TreeModel.Change.Update -> notifyItemChanged(change.position)
+                        else -> {}
+                    }
                     row.removeViewAt(editIndex)
                     labelView.text = newLabel
                     row.addView(labelView, editIndex)
@@ -182,68 +184,26 @@ class TreeAdapter(
                 }
             }
             buttonRemove.setOnClickListener {
-                // remove this node from its parent (or root) and refresh
                 val pos = bindingAdapterPosition
-                if (node.depth == 0) {
-                    // top-level: parent is the root item
-                    rootItem.children.remove(node.item.id)
-                    itemStore.edit(rootItem)
-                } else {
-                    // nested: find parent node above with depth one less
-                    val parentIndex = (pos - 1 downTo 0).firstOrNull { nodes[it].depth == node.depth - 1 }
-                    parentIndex?.let {
-                        val parentNode = nodes[it]
-                        parentNode.item.children.remove(node.item.id)
-                        itemStore.edit(parentNode.item)
-                    }
+                if (pos == RecyclerView.NO_POSITION) return@setOnClickListener
+                when (val change = model.removeAt(pos)) {
+                    is TreeModel.Change.Rebuild -> applyRebuild(change)
+                    else -> {}
                 }
-                rebuildTree()
             }
         }
     }
 
-    private fun expandNode(position: Int) {
-        val node = nodes[position]
-        node.isExpanded = true
-        val children = itemStore.getChildrenOf(node.item.id)
-        val depth = node.depth + 1
-        val insertPosition = position + 1
-        val newNodes = children.map { child -> TreeNode(child, depth, node.path + child.id) }
-        nodes.addAll(insertPosition, newNodes)
-        notifyItemRangeInserted(insertPosition, newNodes.size)
-        notifyItemChanged(position)
-    }
-
-    private fun collapseNode(position: Int) {
-        val node = nodes[position]
-        node.isExpanded = false
-        val removeCount = countDescendants(position)
-        for (i in 0 until removeCount) {
-            nodes.removeAt(position + 1)
-        }
-        notifyItemRangeRemoved(position + 1, removeCount)
-        notifyItemChanged(position)
-    }
-
-    private fun countDescendants(position: Int): Int {
-        val startDepth = nodes[position].depth
-        var count = 0
-        for (i in position + 1 until nodes.size) {
-            if (nodes[i].depth <= startDepth) break
-            count++
-        }
-        return count
-    }
-
     fun rebuildTree() {
-        val oldSize = nodes.size
-        buildInitialNodes()
-        if (oldSize > 0) {
-            notifyItemRangeRemoved(0, oldSize)
+        when (val change = model.rebuild()) {
+            is TreeModel.Change.Rebuild -> applyRebuild(change)
+            else -> {}
         }
-        if (nodes.isNotEmpty()) {
-            notifyItemRangeInserted(0, nodes.size)
-        }
+    }
+
+    private fun applyRebuild(change: TreeModel.Change.Rebuild) {
+        if (change.oldSize > 0) notifyItemRangeRemoved(0, change.oldSize)
+        if (model.nodes.isNotEmpty()) notifyItemRangeInserted(0, model.nodes.size)
     }
 
     companion object {
