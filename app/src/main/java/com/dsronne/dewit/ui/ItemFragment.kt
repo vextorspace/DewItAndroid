@@ -20,6 +20,8 @@ class ItemFragment : Fragment() {
     private lateinit var itemStore: ItemStore
     private lateinit var currentItem: ListItem
     private lateinit var adapter: TreeAdapter
+    private var _binding: FragmentItemBinding? = null
+    private val binding get() = _binding!!
     private var changeListener: (() -> Unit)? = null
     private var rootHeaderBinder: RootHeaderBinder? = null
 
@@ -39,13 +41,13 @@ class ItemFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val binding = FragmentItemBinding.inflate(inflater, container, false)
+        _binding = FragmentItemBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        bindRootView(view)
+        bindRootView()
     }
 
     override fun onStart() {
@@ -53,8 +55,7 @@ class ItemFragment : Fragment() {
         // Rebuild this fragment's tree when store data changes anywhere and refresh header controls.
         changeListener = {
             if (this::adapter.isInitialized) adapter.rebuildTree()
-            view?.let { v ->
-                val b = FragmentItemBinding.bind(v)
+            _binding?.let { b ->
                 val hasClipboard = itemStore.lastRemoved() != null
                 b.buttonPasteChild.isEnabled = hasClipboard
                 b.buttonPasteChild.alpha = if (hasClipboard) 1f else 0.3f
@@ -69,8 +70,7 @@ class ItemFragment : Fragment() {
         changeListener = null
     }
 
-    private fun bindRootView(view: View) {
-        val binding = FragmentItemBinding.bind(view)
+    private fun bindRootView() {
         binding.textLabel.text = currentItem.label()
         rootHeaderBinder = RootHeaderBinder(itemStore).also { binder ->
             binder.bind(
@@ -95,6 +95,7 @@ class ItemFragment : Fragment() {
                         if (pos != -1) binding.childrenContainer.smoothScrollToPosition(pos)
                     }
                     binding.buttonPasteChild.isEnabled = false
+                    binding.buttonPasteChild.alpha = 0.3f
                 },
                 onRemoved = {
                     (activity as? RootPagerController)?.onRootChildRemoved(currentItem.id)
@@ -105,6 +106,14 @@ class ItemFragment : Fragment() {
             LinearLayoutManager(context)
         adapter = TreeAdapter(itemStore, currentItem)
         binding.childrenContainer.adapter = adapter
+        val hasClipboard = itemStore.lastRemoved() != null
+        binding.buttonPasteChild.isEnabled = hasClipboard
+        binding.buttonPasteChild.alpha = if (hasClipboard) 1f else 0.3f
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     companion object {
