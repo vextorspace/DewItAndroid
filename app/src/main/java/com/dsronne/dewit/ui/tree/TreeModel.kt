@@ -36,8 +36,9 @@ class TreeModel(
                 addNodes(child, depth + 1, path + child.id)
             }
         }
-        val rootPath = Path.root() + rootItem.id
-        rootItem.children.mapNotNull { itemStore.find(it) }.forEach { child ->
+        val rootCurrent = itemStore.find(rootItem.id) ?: rootItem
+        val rootPath = Path.root() + rootCurrent.id
+        rootCurrent.children.mapNotNull { itemStore.find(it) }.forEach { child ->
             addNodes(child, 0, rootPath + child.id)
         }
     }
@@ -91,8 +92,9 @@ class TreeModel(
     fun removeAt(position: Int): Change {
         val node = nodes[position]
         if (node.depth == 0) {
-            rootItem.children.remove(node.item.id)
-            itemStore.edit(rootItem)
+            val parent = itemStore.find(rootItem.id) ?: rootItem
+            parent.children.remove(node.item.id)
+            itemStore.edit(parent)
         } else {
             val parentIndex = (position - 1 downTo 0).firstOrNull { nodes[it].depth == node.depth - 1 }
             parentIndex?.let {
@@ -111,4 +113,3 @@ class TreeModel(
         return Change.Update(position)
     }
 }
-
