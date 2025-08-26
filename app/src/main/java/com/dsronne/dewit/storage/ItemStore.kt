@@ -92,8 +92,7 @@ class ItemStore(
         return path.itemIds().mapNotNull { id -> find(id) }.flatMap { it -> it.workflows }.distinct()
     }
 
-    // Convenience: create and attach a new child to the given parent, persist both, and notify.
-    fun addChild(parent: ListItem, label: String = "new item"): ListItem {
+        fun addChild(parent: ListItem, label: String = ""): ListItem {
         val child = ListItem(Item(label))
         add(child)
         parent.add(child)
@@ -101,7 +100,6 @@ class ItemStore(
         return child
     }
 
-    // Clipboard-like support for paste: remembers the last item unlinked via remove
     fun rememberRemoved(itemId: ItemId) {
         lastRemovedItemId = itemId
         notifyChanged()
@@ -112,9 +110,6 @@ class ItemStore(
         notifyChanged()
     }
 
-    // Note: Deleting items entirely is not supported here to allow multi-parent relationships.
-
-    // Simple change observation so UI can refresh other fragments when data changes.
     fun addChangeListener(listener: () -> Unit) {
         listeners.add(listener)
     }
@@ -124,7 +119,6 @@ class ItemStore(
     }
 
     private fun notifyChanged() {
-        // Snapshot to avoid concurrent modification if listeners mutate list
         val snapshot = listeners.toList()
         snapshot.forEach { it.invoke() }
     }

@@ -25,7 +25,6 @@ data class Item(
     }
     fun addWorkflow(workflow: Workflow) {
         if (workflows.contains(workflow)) {
-            println("already had ${workflow.name()}")
             return
         }
         workflows.add(workflow)
