@@ -16,13 +16,17 @@ import com.dsronne.dewit.ui.TreeAdapter
 /**
  * Fragment displaying an item and its nested children using a tree-capable RecyclerView adapter.
  */
-class ItemFragment(private val itemStore: ItemStore) : Fragment() {
+class ItemFragment : Fragment() {
 
+    private lateinit var itemStore: ItemStore
     private lateinit var currentItem: ListItem
     private lateinit var adapter: TreeAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val provider = requireActivity() as? ItemStoreProvider
+            ?: throw IllegalStateException("Hosting activity must implement ItemStoreProvider")
+        itemStore = provider.itemStore()
         val id = arguments?.getString(ARG_ITEM_ID)
             ?: throw IllegalStateException("Missing item id argument")
         currentItem = itemStore.find(ItemId(id))
@@ -62,12 +66,10 @@ class ItemFragment(private val itemStore: ItemStore) : Fragment() {
     companion object {
         private const val ARG_ITEM_ID = "arg_item_id"
 
-        fun newInstance(item: ListItem, store: ItemStore): ItemFragment {
-            val fragment = ItemFragment(store)
-            fragment.arguments = Bundle().apply {
+        fun newInstance(item: ListItem): ItemFragment = ItemFragment().apply {
+            arguments = Bundle().apply {
                 putString(ARG_ITEM_ID, item.id.id)
             }
-            return fragment
         }
     }
 }

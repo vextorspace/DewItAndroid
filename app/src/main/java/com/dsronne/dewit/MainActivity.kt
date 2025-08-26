@@ -9,9 +9,19 @@ import androidx.viewpager2.widget.ViewPager2
 import com.dsronne.dewit.storage.SqliteItemRepository
 import com.dsronne.dewit.storage.ItemStore
 import com.dsronne.dewit.ui.ItemPagerAdapter
+import com.dsronne.dewit.ui.ItemStoreProvider
 import com.dsronne.dewit.databinding.ActivityMainBinding
+import com.dsronne.dewit.datamodel.ItemId
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), ItemStoreProvider {
+    private val itemStore: ItemStore by lazy {
+        val repository = SqliteItemRepository(applicationContext)
+        val store = ItemStore(repository)
+        if (repository.find(ItemId("root")) == null) {
+            store.initProgramManagement()
+        }
+        store
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -23,14 +33,10 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        val repository = SqliteItemRepository(this)
-        val itemStore = ItemStore(repository)
-        // Seed initial program-management hierarchy only on first launch (empty DB)
-        if (repository.find(com.dsronne.dewit.datamodel.ItemId("root")) == null) {
-            itemStore.initProgramManagement()
-        }
         val rootChildren = itemStore.getChildrenOf(itemStore.root().id)
 
-        binding.viewPager.adapter = ItemPagerAdapter(this, rootChildren, itemStore)
+        binding.viewPager.adapter = ItemPagerAdapter(this, rootChildren)
     }
+
+    override fun itemStore(): ItemStore = itemStore
 }
