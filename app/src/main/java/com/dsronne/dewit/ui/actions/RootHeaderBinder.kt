@@ -30,10 +30,7 @@ class RootHeaderBinder(private val itemStore: ItemStore) {
         val container = labelView.parent as? ViewGroup
             ?: throw IllegalStateException("Label view must have a ViewGroup parent")
         buttonAdd.setOnClickListener {
-            val child = ListItem(Item("new item"))
-            itemStore.add(child)
-            currentItem.add(child)
-            itemStore.edit(currentItem)
+            val child = itemStore.addChild(currentItem)
             onChildAdded(child.id)
         }
 

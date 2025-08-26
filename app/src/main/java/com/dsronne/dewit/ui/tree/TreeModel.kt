@@ -83,10 +83,7 @@ class TreeModel(
 
     fun addChildTo(position: Int): Change {
         val node = nodes[position]
-        val newChild = com.dsronne.dewit.datamodel.ListItem(com.dsronne.dewit.datamodel.Item("new item"))
-        itemStore.add(newChild)
-        node.item.add(newChild)
-        itemStore.edit(node.item)
+        val newChild = itemStore.addChild(node.item)
         lastAddedChildId = newChild.id
         return rebuild()
     }
