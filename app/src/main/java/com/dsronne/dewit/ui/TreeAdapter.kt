@@ -17,6 +17,7 @@ import com.dsronne.dewit.ui.actions.AddChildBinder
 import com.dsronne.dewit.ui.actions.EditItemBinder
 import com.dsronne.dewit.ui.actions.RemoveItemBinder
 import com.dsronne.dewit.ui.actions.ExpandCollapseBinder
+import com.dsronne.dewit.ui.config.UiConfig
 
 /**
  * A simple tree-capable RecyclerView adapter for displaying nested ListItems.
@@ -56,7 +57,7 @@ class TreeAdapter(
         fun bind(node: TreeNode) {
             labelView.text = node.item.label()
             val params = indentView.layoutParams
-            params.width = node.depth * INDENT_WIDTH
+            params.width = node.depth * UiConfig.INDENT_WIDTH_PX
             indentView.layoutParams = params
 
             workflowBinder.bind(spinnerWorkflows, node) {
@@ -101,7 +102,5 @@ class TreeAdapter(
         if (model.nodes.isNotEmpty()) notifyItemRangeInserted(0, model.nodes.size)
     }
 
-    companion object {
-        private const val INDENT_WIDTH = 40
-    }
+    companion object {}
 }
