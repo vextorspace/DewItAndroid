@@ -17,6 +17,7 @@ import com.dsronne.dewit.ui.actions.AddChildBinder
 import com.dsronne.dewit.ui.actions.EditItemBinder
 import com.dsronne.dewit.ui.actions.RemoveItemBinder
 import com.dsronne.dewit.ui.actions.ExpandCollapseBinder
+import com.dsronne.dewit.ui.actions.PasteItemBinder
 import com.dsronne.dewit.ui.config.UiConfig
 import com.dsronne.dewit.datamodel.ItemId
 
@@ -33,6 +34,7 @@ class TreeAdapter(
     private val editItemBinder = EditItemBinder(model)
     private val removeItemBinder = RemoveItemBinder(model)
     private val expandCollapseBinder = ExpandCollapseBinder(model)
+    private val pasteItemBinder = PasteItemBinder(itemStore, model)
     private var pendingEditItemId: ItemId? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TreeViewHolder {
@@ -54,6 +56,7 @@ class TreeAdapter(
         private val labelView: TextView = itemView.findViewById(R.id.text_label)
         private val buttonExpand: ImageButton = itemView.findViewById(R.id.button_expand_collapse)
         private val buttonAdd: ImageButton = itemView.findViewById(R.id.button_add_child)
+        private val buttonPaste: ImageButton = itemView.findViewById(R.id.button_paste_child)
         private val buttonEdit: ImageButton = itemView.findViewById(R.id.button_edit_item)
         private val buttonRemove: ImageButton = itemView.findViewById(R.id.button_remove_item)
         private val spinnerWorkflows: Spinner = itemView.findViewById(R.id.spinner_workflows)
@@ -88,6 +91,9 @@ class TreeAdapter(
             }
             addChildBinder.bind(buttonAdd, this) { change, newId ->
                 pendingEditItemId = newId
+                applyRebuild(change)
+            }
+            pasteItemBinder.bind(buttonPaste, this, { node.item.id }) { change ->
                 applyRebuild(change)
             }
             editItemBinder.bind(buttonEdit, this, itemView as ViewGroup, labelView, node) { change ->

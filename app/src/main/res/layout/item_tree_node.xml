@@ -46,6 +46,15 @@
         app:tint="?attr/colorOnSurface" />
 
     <ImageButton
+        android:id="@+id/button_paste_child"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_paste"
+        android:contentDescription="@string/paste_item"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        app:tint="?attr/colorOnSurface" />
+
+    <ImageButton
         android:id="@+id/button_edit_item"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

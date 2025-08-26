@@ -80,6 +80,7 @@ class RootHeaderBinder(private val itemStore: ItemStore) {
             val root = itemStore.root()
             root.children.remove(currentItem.id)
             itemStore.edit(root)
+            itemStore.rememberRemoved(currentItem.id)
             onRemoved()
         }
     }

@@ -16,6 +16,7 @@ class ItemStore(
     items: List<ListItem> = emptyList()
 ) : ItemBrowser, ItemEditor {
     private val listeners: MutableList<() -> Unit> = mutableListOf()
+    private var lastRemovedItemId: ItemId? = null
     init {
         items.forEach { repository.save(it) }
     }
@@ -99,6 +100,10 @@ class ItemStore(
         edit(parent)
         return child
     }
+
+    // Clipboard-like support for paste: remembers the last item unlinked via remove
+    fun rememberRemoved(itemId: ItemId) { lastRemovedItemId = itemId }
+    fun lastRemoved(): ItemId? = lastRemovedItemId
 
     // Note: Deleting items entirely is not supported here to allow multi-parent relationships.
 

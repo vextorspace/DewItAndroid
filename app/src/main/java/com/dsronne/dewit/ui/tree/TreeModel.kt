@@ -102,6 +102,7 @@ class TreeModel(
                 itemStore.edit(parentNode.item)
             }
         }
+        itemStore.rememberRemoved(node.item.id)
         return rebuild()
     }
 
