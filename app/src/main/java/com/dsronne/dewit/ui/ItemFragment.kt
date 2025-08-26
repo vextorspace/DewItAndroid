@@ -21,6 +21,7 @@ class ItemFragment : Fragment() {
     private lateinit var itemStore: ItemStore
     private lateinit var currentItem: ListItem
     private lateinit var adapter: TreeAdapter
+    private var changeListener: (() -> Unit)? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,6 +46,19 @@ class ItemFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         bindRootView(view)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        // Rebuild this fragment's tree when store data changes anywhere.
+        changeListener = { if (this::adapter.isInitialized) adapter.rebuildTree() }
+        itemStore.addChangeListener(changeListener!!)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        changeListener?.let { itemStore.removeChangeListener(it) }
+        changeListener = null
     }
 
     private fun bindRootView(view: View) {

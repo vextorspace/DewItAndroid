@@ -15,16 +15,19 @@ class ItemStore(
     private val repository: ItemRepository,
     items: List<ListItem> = emptyList()
 ) : ItemBrowser, ItemEditor {
+    private val listeners: MutableList<() -> Unit> = mutableListOf()
     init {
         items.forEach { repository.save(it) }
     }
 
     override fun add(newItem: ListItem) {
         repository.save(newItem)
+        notifyChanged()
     }
 
     override fun edit(changedItem: ListItem) {
         repository.update(changedItem)
+        notifyChanged()
     }
 
     override fun find(id: ItemId): ListItem? {
@@ -86,5 +89,20 @@ class ItemStore(
     fun getWorkflows(path: Path): List<Workflow> {
         if(path.isEmpty()) return emptyList()
         return path.itemIds().mapNotNull { id -> find(id) }.flatMap { it -> it.workflows }.distinct()
+    }
+
+    // Simple change observation so UI can refresh other fragments when data changes.
+    fun addChangeListener(listener: () -> Unit) {
+        listeners.add(listener)
+    }
+
+    fun removeChangeListener(listener: () -> Unit) {
+        listeners.remove(listener)
+    }
+
+    private fun notifyChanged() {
+        // Snapshot to avoid concurrent modification if listeners mutate list
+        val snapshot = listeners.toList()
+        snapshot.forEach { it.invoke() }
     }
 }
