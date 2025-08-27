@@ -2,6 +2,7 @@ package com.dsronne.dewit.ui.actions
 
 import android.content.Context
 import android.util.TypedValue
+import android.view.KeyEvent
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
@@ -61,6 +62,7 @@ class RootHeaderBinder(private val itemStore: ItemStore) {
                 requestFocus()
                 setSelectAllOnFocus(true)
                 imeOptions = EditorInfo.IME_ACTION_DONE
+                isSingleLine = true
             }
             container.addView(editText, index)
             val imm = container.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -75,6 +77,14 @@ class RootHeaderBinder(private val itemStore: ItemStore) {
                 } else {
                     false
                 }
+            }
+            editText.setOnKeyListener { _, keyCode, event ->
+                if (event.action == KeyEvent.ACTION_DOWN &&
+                    (keyCode == KeyEvent.KEYCODE_ENTER || keyCode == KeyEvent.KEYCODE_NUMPAD_ENTER)
+                ) {
+                    buttonEdit.performClick()
+                    true
+                } else false
             }
         }
 

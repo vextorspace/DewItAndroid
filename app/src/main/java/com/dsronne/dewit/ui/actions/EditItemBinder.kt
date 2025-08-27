@@ -2,6 +2,7 @@ package com.dsronne.dewit.ui.actions
 
 import android.content.Context
 import android.util.TypedValue
+import android.view.KeyEvent
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
@@ -47,6 +48,14 @@ class EditItemBinder(private val model: TreeModel) {
                         false
                     }
                 }
+                et.setOnKeyListener { _, keyCode, event ->
+                    if (event.action == KeyEvent.ACTION_DOWN &&
+                        (keyCode == KeyEvent.KEYCODE_ENTER || keyCode == KeyEvent.KEYCODE_NUMPAD_ENTER)
+                    ) {
+                        commitEdit(viewHolder, row, labelView, et, onUpdated)
+                        true
+                    } else false
+                }
             }
         }
     }
@@ -70,6 +79,14 @@ class EditItemBinder(private val model: TreeModel) {
                     false
                 }
             }
+            et.setOnKeyListener { _, keyCode, event ->
+                if (event.action == KeyEvent.ACTION_DOWN &&
+                    (keyCode == KeyEvent.KEYCODE_ENTER || keyCode == KeyEvent.KEYCODE_NUMPAD_ENTER)
+                ) {
+                    commitEdit(viewHolder, row, labelView, et, onUpdated)
+                    true
+                } else false
+            }
         }
     }
 
@@ -89,6 +106,7 @@ class EditItemBinder(private val model: TreeModel) {
             requestFocus()
             setSelectAllOnFocus(true)
             imeOptions = EditorInfo.IME_ACTION_DONE
+            isSingleLine = true
         }
         row.addView(editText, if (index != -1) index else row.childCount)
         val imm = row.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
