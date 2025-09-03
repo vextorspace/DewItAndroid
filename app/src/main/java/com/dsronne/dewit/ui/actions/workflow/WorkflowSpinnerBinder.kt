@@ -1,4 +1,4 @@
-package com.dsronne.dewit.ui.workflow
+package com.dsronne.dewit.ui.actions.workflow
 
 import android.content.Context
 import android.view.LayoutInflater

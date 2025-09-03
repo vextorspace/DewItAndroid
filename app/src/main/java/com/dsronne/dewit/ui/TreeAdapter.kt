@@ -12,7 +12,7 @@ import com.dsronne.dewit.datamodel.ListItem
 import com.dsronne.dewit.storage.ItemStore
 import com.dsronne.dewit.ui.tree.TreeModel
 import com.dsronne.dewit.ui.tree.TreeModel.TreeNode
-import com.dsronne.dewit.ui.workflow.WorkflowSpinnerBinder
+import com.dsronne.dewit.ui.actions.workflow.WorkflowSpinnerBinder
 import com.dsronne.dewit.ui.actions.AddChildBinder
 import com.dsronne.dewit.ui.actions.EditItemBinder
 import com.dsronne.dewit.ui.actions.RemoveItemBinder
