@@ -36,7 +36,8 @@ class WorkflowSpinnerBinder(private val itemStore: ItemStore) {
         wfAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinner.adapter = wfAdapter
         spinner.setSelection(0, false)
-        setSpinnerWidthToText(spinner, placeholder)
+        setSpinnerWidthToMin(spinner)
+        // setSpinnerWidthToText(spinner, placeholder)
 
         var lastPos = 0
         spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -67,6 +68,15 @@ class WorkflowSpinnerBinder(private val itemStore: ItemStore) {
         val lp = spinner.layoutParams
         if (lp.width != targetWidth) {
             lp.width = targetWidth
+            spinner.layoutParams = lp
+        }
+    }
+
+    private fun setSpinnerWidthToMin(spinner: Spinner) {
+        val arrowExtraPx = dpToPx(spinner.context, 50f)
+        val lp = spinner.layoutParams
+        if (lp.width != arrowExtraPx) {
+            lp.width = arrowExtraPx
             spinner.layoutParams = lp
         }
     }
