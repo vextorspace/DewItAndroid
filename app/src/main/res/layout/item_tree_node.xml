@@ -19,14 +19,6 @@
         android:layout_weight="1"
         android:textSize="18sp" />
 
-    <Spinner
-        android:id="@+id/spinner_workflows"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
-        android:spinnerMode="dropdown"
-        android:visibility="gone" />
-
     <ImageButton
         android:id="@+id/button_expand_collapse"
         android:layout_width="wrap_content"
@@ -71,5 +63,13 @@
         android:contentDescription="@string/remove_item"
         android:background="?attr/selectableItemBackgroundBorderless"
         app:tint="?attr/colorOnSurface" />
+
+    <Spinner
+        android:id="@+id/spinner_workflows"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:spinnerMode="dropdown"
+        android:visibility="gone" />
 
 </LinearLayout>
