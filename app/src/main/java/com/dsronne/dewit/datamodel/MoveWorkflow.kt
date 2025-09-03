@@ -5,7 +5,7 @@ import com.dsronne.dewit.storage.ItemStore
 class MoveWorkflow(targetId: ItemId) : CopyWorkflow(targetId) {
 
     override fun name(): String {
-        return "Move $targetId"
+        return "Move -> ${targetId.id}"
     }
 
     override fun apply(itemStore: ItemStore, parentId: ItemId, item: ListItem) : Boolean {

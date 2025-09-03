@@ -4,7 +4,7 @@ import com.dsronne.dewit.storage.ItemStore
 
 open class CopyWorkflow(val targetId: ItemId) : Workflow {
     override fun name(): String {
-        return "Copy $targetId"
+        return "Copy -> ${targetId.id}"
     }
 
     override fun apply(itemStore: ItemStore, parentId: ItemId, item: ListItem) : Boolean {
@@ -13,7 +13,6 @@ open class CopyWorkflow(val targetId: ItemId) : Workflow {
         targetItem?.let { targetItem ->
             targetItem.add(item)
             itemStore.edit(targetItem)
-            println("Copied ${item.label()} to ${targetItem.label()}")
             return true
         }
         return false
