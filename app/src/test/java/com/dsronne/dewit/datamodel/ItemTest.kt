@@ -1,11 +1,10 @@
-package com.dsronne.dewit
+package com.dsronne.dewit.datamodel
 
-import com.dsronne.dewit.datamodel.Item
-import com.dsronne.dewit.datamodel.ItemId
+import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 
-class ItemTest : io.kotest.core.spec.style.FunSpec({
+class ItemTest : FunSpec({
     test("item label returns constructor value") {
         val text = "some string"
         val item = Item(text)

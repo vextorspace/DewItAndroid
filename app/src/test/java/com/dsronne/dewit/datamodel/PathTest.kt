@@ -1,11 +1,9 @@
-package com.dsronne.dewit
+package com.dsronne.dewit.datamodel
 
-import com.dsronne.dewit.datamodel.ItemId
-import com.dsronne.dewit.datamodel.Path
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-class PathTest : io.kotest.core.spec.style.FunSpec({
+class PathTest : FunSpec({
     test("empty path is root") {
         val path = Path()
         path[0] shouldBe ItemId("root")

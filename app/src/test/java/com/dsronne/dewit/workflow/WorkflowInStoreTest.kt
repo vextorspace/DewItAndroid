@@ -1,4 +1,4 @@
-package com.dsronne.dewit
+package com.dsronne.dewit.workflow
 
 import com.dsronne.dewit.datamodel.Item
 import com.dsronne.dewit.datamodel.ListItem

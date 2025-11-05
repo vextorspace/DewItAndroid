@@ -1,13 +1,11 @@
-package com.dsronne.dewit
+package com.dsronne.dewit.datamodel
 
-import com.dsronne.dewit.datamodel.Item
-import com.dsronne.dewit.datamodel.ListItem
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 
-class ListItemTest : io.kotest.core.spec.style.FunSpec({
+class ListItemTest : FunSpec({
     test("default constructor provides default data") {
         val listItem = ListItem()
         listItem.data.shouldNotBeNull()
