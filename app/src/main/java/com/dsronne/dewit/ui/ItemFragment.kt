@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.dsronne.dewit.databinding.FragmentItemBinding
@@ -13,17 +14,20 @@ import com.dsronne.dewit.storage.ItemStore
 import com.dsronne.dewit.ui.actions.RootHeaderBinder
 
 /**
- * Fragment displaying an item and its nested children using a tree-capable RecyclerView adapter.
+ * Fragment displaying an item and its direct children. Selecting a child drills into that item.
  */
 class ItemFragment : Fragment() {
 
     private lateinit var itemStore: ItemStore
     private lateinit var currentItem: ListItem
-    private lateinit var adapter: TreeAdapter
+    private lateinit var childrenAdapter: ChildrenAdapter
     private var _binding: FragmentItemBinding? = null
     private val binding get() = _binding!!
     private var changeListener: (() -> Unit)? = null
     private var rootHeaderBinder: RootHeaderBinder? = null
+    private var headerContainer: ViewGroup? = null
+    private var labelInsertionIndex: Int = -1
+    private var pendingHeaderEdit: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,13 +56,13 @@ class ItemFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        // Rebuild this fragment's tree when store data changes anywhere and refresh header controls.
+        // Refresh the displayed item when store data changes anywhere.
         changeListener = {
-            if (this::adapter.isInitialized) adapter.rebuildTree()
-            _binding?.let { b ->
-                val hasClipboard = itemStore.lastRemoved() != null
-                b.buttonPasteChild.isEnabled = hasClipboard
-                b.buttonPasteChild.alpha = if (hasClipboard) 1f else 0.3f
+            if (this::childrenAdapter.isInitialized) {
+                itemStore.find(currentItem.id)?.let {
+                    currentItem = it
+                    renderCurrentItem()
+                }
             }
         }
         itemStore.addChangeListener(changeListener!!)
@@ -71,49 +75,87 @@ class ItemFragment : Fragment() {
     }
 
     private fun bindRootView() {
-        binding.textLabel.text = currentItem.label()
-        rootHeaderBinder = RootHeaderBinder(itemStore).also { binder ->
-            binder.bind(
-                buttonAdd = binding.buttonAddChild,
-                buttonPaste = binding.buttonPasteChild,
-                buttonEdit = binding.buttonEditItem,
-                buttonRemove = binding.buttonRemoveItem,
-                labelView = binding.textLabel,
-                currentItem = currentItem,
-                onChildAdded = { id ->
-                    adapter.rebuildTreeAndFocusEdit(id)
-                    // Ensure visibility of the item about to be edited
-                    binding.childrenContainer.post {
-                        val pos = adapter.positionOf(id)
-                        if (pos != -1) binding.childrenContainer.smoothScrollToPosition(pos)
-                    }
-                },
-                onPasted = { id ->
-                    adapter.rebuildTreeAndFocusEdit(id)
-                    binding.childrenContainer.post {
-                        val pos = adapter.positionOf(id)
-                        if (pos != -1) binding.childrenContainer.smoothScrollToPosition(pos)
-                    }
-                    binding.buttonPasteChild.isEnabled = false
-                    binding.buttonPasteChild.alpha = 0.3f
-                },
-                onRemoved = {
-                    (activity as? RootPagerController)?.onRootChildRemoved(currentItem.id)
-                }
-            )
+        binding.childrenContainer.layoutManager = LinearLayoutManager(context)
+        childrenAdapter = ChildrenAdapter { child ->
+            showItem(child)
         }
-        binding.childrenContainer.layoutManager =
-            LinearLayoutManager(context)
-        adapter = TreeAdapter(itemStore, currentItem)
-        binding.childrenContainer.adapter = adapter
-        val hasClipboard = itemStore.lastRemoved() != null
-        binding.buttonPasteChild.isEnabled = hasClipboard
-        binding.buttonPasteChild.alpha = if (hasClipboard) 1f else 0.3f
+        binding.childrenContainer.adapter = childrenAdapter
+        headerContainer = (binding.textLabel.parent as? ViewGroup)?.also { parent ->
+            labelInsertionIndex = parent.indexOfChild(binding.textLabel).coerceAtLeast(0)
+        }
+        rootHeaderBinder = RootHeaderBinder(itemStore)
+        renderCurrentItem()
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun renderCurrentItem() {
+        ensureLabelRestored()
+        binding.textLabel.text = currentItem.label()
+        val targetId = currentItem.id
+        rootHeaderBinder?.bind(
+            buttonAdd = binding.buttonAddChild,
+            buttonPaste = binding.buttonPasteChild,
+            buttonEdit = binding.buttonEditItem,
+            buttonRemove = binding.buttonRemoveItem,
+            labelView = binding.textLabel,
+            currentItem = currentItem,
+            onChildAdded = { id ->
+                pendingHeaderEdit = true
+                itemStore.find(id)?.let { showItem(it) } ?: run {
+                    refreshChildren()
+                    triggerPendingHeaderEdit()
+                }
+            },
+            onPasted = {
+                refreshChildren()
+            },
+            onRemoved = {
+                (activity as? RootPagerController)?.onRootChildRemoved(targetId)
+            }
+        )
+        refreshChildren()
+        triggerPendingHeaderEdit()
+    }
+
+    private fun refreshChildren() {
+        if (!this::childrenAdapter.isInitialized) return
+        val children = itemStore.getChildrenOf(currentItem.id)
+        childrenAdapter.submitList(children)
+        val hasClipboard = itemStore.lastRemoved() != null
+        binding.buttonPasteChild.isEnabled = hasClipboard
+        binding.buttonPasteChild.alpha = if (hasClipboard) 1f else 0.3f
+    }
+
+    private fun showItem(item: ListItem) {
+        currentItem = item
+        renderCurrentItem()
+    }
+
+    private fun ensureLabelRestored() {
+        val container = headerContainer ?: (binding.textLabel.parent as? ViewGroup)?.also {
+            headerContainer = it
+            labelInsertionIndex = it.indexOfChild(binding.textLabel).coerceAtLeast(0)
+        } ?: return
+        for (i in container.childCount - 1 downTo 0) {
+            val child = container.getChildAt(i)
+            if (child is EditText) {
+                container.removeViewAt(i)
+            }
+        }
+        if (binding.textLabel.parent !== container) {
+            val targetIndex = labelInsertionIndex.coerceIn(0, container.childCount)
+            container.addView(binding.textLabel, targetIndex)
+        }
+    }
+
+    private fun triggerPendingHeaderEdit() {
+        if (!pendingHeaderEdit) return
+        pendingHeaderEdit = false
+        binding.buttonEditItem.post { binding.buttonEditItem.performClick() }
     }
 
     companion object {
@@ -125,4 +167,5 @@ class ItemFragment : Fragment() {
             }
         }
     }
+
 }
