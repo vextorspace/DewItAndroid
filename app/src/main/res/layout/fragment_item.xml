@@ -54,20 +54,12 @@
             app:tint="?attr/colorOnSurface" />
     </LinearLayout>
 
-    <HorizontalScrollView
-        android:id="@+id/breadcrumb_scroll"
+    <com.dsronne.dewit.ui.BreadcrumbTrailView
+        android:id="@+id/breadcrumb_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:scrollbars="none"
-        android:paddingBottom="8dp">
-
-        <LinearLayout
-            android:id="@+id/breadcrumb_container"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal" />
-    </HorizontalScrollView>
+        android:paddingBottom="8dp" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/children_container"
