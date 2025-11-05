@@ -1,10 +1,12 @@
 package com.dsronne.dewit.ui
 
+import android.graphics.Typeface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.dsronne.dewit.databinding.FragmentItemBinding
@@ -117,6 +119,7 @@ class ItemFragment : Fragment() {
                 (activity as? RootPagerController)?.onRootChildRemoved(targetId)
             }
         )
+        renderBreadcrumbs()
         refreshChildren()
         triggerPendingHeaderEdit()
     }
@@ -150,6 +153,80 @@ class ItemFragment : Fragment() {
             val targetIndex = labelInsertionIndex.coerceIn(0, container.childCount)
             container.addView(binding.textLabel, targetIndex)
         }
+    }
+
+    private fun renderBreadcrumbs() {
+        val container = binding.breadcrumbContainer
+        val scrollView = binding.breadcrumbScroll
+        container.removeAllViews()
+        val path = findBreadcrumbPath()
+        if (path.isEmpty()) return
+        val density = container.resources.displayMetrics.density
+        val crumbPaddingHorizontal = (12 * density).toInt()
+        val crumbPaddingVertical = (6 * density).toInt()
+        val separatorPadding = (6 * density).toInt()
+        val attrs = intArrayOf(android.R.attr.selectableItemBackgroundBorderless)
+        val typedArray = container.context.obtainStyledAttributes(attrs)
+        val selectableBackground = typedArray.getResourceId(0, 0)
+        typedArray.recycle()
+        path.forEachIndexed { index, item ->
+            if (index > 0) {
+                val separator = TextView(container.context).apply {
+                    text = ">"
+                    setPadding(separatorPadding, 0, separatorPadding, 0)
+                }
+                container.addView(separator)
+            }
+            val crumb = TextView(container.context).apply {
+                text = item.label()
+                setPadding(
+                    crumbPaddingHorizontal,
+                    crumbPaddingVertical,
+                    crumbPaddingHorizontal,
+                    crumbPaddingVertical
+                )
+                setTypeface(typeface, if (index == path.lastIndex) Typeface.BOLD else Typeface.NORMAL)
+                isClickable = true
+                isFocusable = true
+                if (selectableBackground != 0) {
+                    setBackgroundResource(selectableBackground)
+                }
+                setOnClickListener { showItem(item) }
+            }
+            container.addView(crumb)
+        }
+        scrollView.post { scrollView.fullScroll(View.FOCUS_RIGHT) }
+    }
+
+    private fun findBreadcrumbPath(): List<ListItem> {
+        val root = itemStore.root()
+        val target = currentItem.id
+        val visited = mutableSetOf<ItemId>()
+        val path = mutableListOf<ListItem>()
+        return findBreadcrumbPathRecursive(root, target, visited, path)
+            ?: if (root.id == target) listOf(root) else listOf(currentItem)
+    }
+
+    private fun findBreadcrumbPathRecursive(
+        node: ListItem,
+        target: ItemId,
+        visited: MutableSet<ItemId>,
+        path: MutableList<ListItem>
+    ): List<ListItem>? {
+        if (!visited.add(node.id)) return null
+        path.add(node)
+        if (node.id == target) {
+            return path.toList()
+        }
+        itemStore.getChildrenOf(node.id).forEach { child ->
+            val result = findBreadcrumbPathRecursive(child, target, visited, path)
+            if (result != null) {
+                return result
+            }
+        }
+        path.removeAt(path.lastIndex)
+        visited.remove(node.id)
+        return null
     }
 
     private fun triggerPendingHeaderEdit() {
