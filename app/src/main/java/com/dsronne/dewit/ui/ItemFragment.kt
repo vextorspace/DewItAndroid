@@ -12,6 +12,7 @@ import com.dsronne.dewit.datamodel.ItemId
 import com.dsronne.dewit.datamodel.ListItem
 import com.dsronne.dewit.storage.ItemStore
 import com.dsronne.dewit.ui.actions.RootHeaderBinder
+import com.dsronne.dewit.ui.actions.workflow.WorkflowSpinnerBinder
 
 /**
  * Fragment displaying an item and its direct children. Selecting a child drills into that item.
@@ -25,6 +26,7 @@ class ItemFragment : Fragment() {
     private val binding get() = _binding!!
     private var changeListener: (() -> Unit)? = null
     private var rootHeaderBinder: RootHeaderBinder? = null
+    private lateinit var workflowSpinnerBinder: WorkflowSpinnerBinder
     private var headerContainer: ViewGroup? = null
     private var labelInsertionIndex: Int = -1
     private var pendingHeaderEdit: Boolean = false
@@ -38,6 +40,7 @@ class ItemFragment : Fragment() {
             ?: throw IllegalStateException("Missing item id argument")
         currentItem = itemStore.find(ItemId(id))
             ?: throw IllegalStateException("Unknown item id: $id")
+        workflowSpinnerBinder = WorkflowSpinnerBinder(itemStore)
     }
 
     override fun onCreateView(
@@ -117,7 +120,9 @@ class ItemFragment : Fragment() {
                 (activity as? RootPagerController)?.onRootChildRemoved(targetId)
             }
         )
-        binding.breadcrumbView.render(findBreadcrumbPath()) { showItem(it) }
+        val breadcrumb = findBreadcrumbPath()
+        binding.breadcrumbView.render(breadcrumb) { showItem(it) }
+        bindWorkflowSpinner(breadcrumb)
         refreshChildren()
         triggerPendingHeaderEdit()
     }
@@ -182,6 +187,15 @@ class ItemFragment : Fragment() {
         path.removeAt(path.lastIndex)
         visited.remove(node.id)
         return null
+    }
+
+    private fun bindWorkflowSpinner(breadcrumb: List<ListItem>) {
+        if (!this::workflowSpinnerBinder.isInitialized) return
+        workflowSpinnerBinder.bind(
+            spinner = binding.spinnerWorkflowsCurrent,
+            breadcrumb = breadcrumb,
+            onApplied = { renderCurrentItem() }
+        )
     }
 
     private fun triggerPendingHeaderEdit() {

@@ -8,20 +8,29 @@ import android.widget.ArrayAdapter
 import android.widget.Spinner
 import android.widget.TextView
 import com.dsronne.dewit.R
+import com.dsronne.dewit.datamodel.ListItem
+import com.dsronne.dewit.datamodel.Path
 import com.dsronne.dewit.storage.ItemStore
-import com.dsronne.dewit.ui.tree.TreeModel.TreeNode
 
 /**
  * Encapsulates all logic for rendering and handling the workflow spinner.
- * TreeAdapter delegates spinner view setup and interactions to this binder.
+ * Delegates spinner view setup and interactions to this binder.
  */
 class WorkflowSpinnerBinder(private val itemStore: ItemStore) {
 
-    fun bind(spinner: Spinner, node: TreeNode, onApplied: () -> Unit) {
-        val workflows = itemStore.getWorkflows(node.path)
-
+    fun bind(
+        spinner: Spinner,
+        breadcrumb: List<ListItem>,
+        onApplied: () -> Unit
+    ) {
+        if (breadcrumb.size <= 2) {
+            hideSpinner(spinner)
+            return
+        }
+        val pathItemIds = breadcrumb.map { it.id }
+        val workflows = itemStore.getWorkflows(Path(pathItemIds))
         if (workflows.isEmpty()) {
-            spinner.visibility = View.GONE
+            hideSpinner(spinner)
             return
         }
 
@@ -37,7 +46,9 @@ class WorkflowSpinnerBinder(private val itemStore: ItemStore) {
         spinner.adapter = wfAdapter
         spinner.setSelection(0, false)
         setSpinnerWidthToMin(spinner)
-        // setSpinnerWidthToText(spinner, placeholder)
+
+        val currentItem = breadcrumb.last()
+        val parentId = breadcrumb[breadcrumb.size - 2].id
 
         var lastPos = 0
         spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -45,13 +56,12 @@ class WorkflowSpinnerBinder(private val itemStore: ItemStore) {
                 if (position == lastPos || position == 0) return
                 lastPos = position
                 val workflow = workflows[position - 1]
-                val parentPath = node.path.parent()
-                val parentId = parentPath[parentPath.size() - 1]
-                if (workflow.apply(itemStore, parentId, node.item)) {
+                if (workflow.apply(itemStore, parentId, currentItem)) {
                     onApplied()
                     spinner.setSelection(0)
                 }
             }
+
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
     }
@@ -82,5 +92,10 @@ class WorkflowSpinnerBinder(private val itemStore: ItemStore) {
     }
 
     private fun dpToPx(ctx: Context, dp: Float): Int = (dp * ctx.resources.displayMetrics.density).toInt()
-}
 
+    private fun hideSpinner(spinner: Spinner) {
+        spinner.visibility = View.GONE
+        spinner.adapter = null
+        spinner.onItemSelectedListener = null
+    }
+}

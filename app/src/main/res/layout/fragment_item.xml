@@ -52,6 +52,14 @@
             android:contentDescription="@string/remove_item"
             android:background="?attr/selectableItemBackgroundBorderless"
             app:tint="?attr/colorOnSurface" />
+
+        <Spinner
+            android:id="@+id/spinner_workflows_current"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:spinnerMode="dropdown"
+            android:visibility="gone" />
     </LinearLayout>
 
     <com.dsronne.dewit.ui.BreadcrumbTrailView
