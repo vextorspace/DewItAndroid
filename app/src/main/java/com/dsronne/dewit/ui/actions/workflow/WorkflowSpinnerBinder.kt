@@ -1,12 +1,10 @@
 package com.dsronne.dewit.ui.actions.workflow
 
 import android.content.Context
-import android.view.LayoutInflater
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
-import android.widget.TextView
 import com.dsronne.dewit.R
 import com.dsronne.dewit.datamodel.ListItem
 import com.dsronne.dewit.datamodel.Path
@@ -63,22 +61,6 @@ class WorkflowSpinnerBinder(private val itemStore: ItemStore) {
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {}
-        }
-    }
-
-    private fun setSpinnerWidthToText(spinner: Spinner, text: String) {
-        val tv = LayoutInflater.from(spinner.context)
-            .inflate(R.layout.spinner_item_workflow, null, false) as TextView
-        tv.text = text
-        val widthSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
-        val heightSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
-        tv.measure(widthSpec, heightSpec)
-        val arrowExtraPx = dpToPx(spinner.context, 50f)
-        val targetWidth = tv.measuredWidth + arrowExtraPx
-        val lp = spinner.layoutParams
-        if (lp.width != targetWidth) {
-            lp.width = targetWidth
-            spinner.layoutParams = lp
         }
     }
 

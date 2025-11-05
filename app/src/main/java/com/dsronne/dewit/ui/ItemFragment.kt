@@ -121,7 +121,8 @@ class ItemFragment : Fragment() {
             }
         )
         val breadcrumb = findBreadcrumbPath()
-        binding.breadcrumbView.render(breadcrumb) { showItem(it) }
+        val displayBreadcrumb = breadcrumb.drop(1)
+        binding.breadcrumbView.render(displayBreadcrumb) { showItem(it) }
         bindWorkflowSpinner(breadcrumb)
         refreshChildren()
         triggerPendingHeaderEdit()
