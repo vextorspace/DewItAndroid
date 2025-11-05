@@ -26,8 +26,10 @@ class RootHeaderBinder(private val itemStore: ItemStore) {
         currentItem: ListItem,
         onChildAdded: (com.dsronne.dewit.datamodel.ItemId) -> Unit,
         onPasted: (com.dsronne.dewit.datamodel.ItemId) -> Unit,
-        onRemoved: () -> Unit
+        onRemoved: () -> Unit,
+        onEditStateChanged: (Boolean) -> Unit = {}
     ) {
+        onEditStateChanged(false)
         // Use the label's actual parent container to avoid mismatches.
         val container = labelView.parent as? ViewGroup
             ?: throw IllegalStateException("Label view must have a ViewGroup parent")
@@ -48,6 +50,7 @@ class RootHeaderBinder(private val itemStore: ItemStore) {
                 container.addView(labelView, editIndex)
                 val imm = container.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                 imm.hideSoftInputFromWindow(labelView.windowToken, 0)
+                onEditStateChanged(false)
                 return@setOnClickListener
             }
 
@@ -85,6 +88,7 @@ class RootHeaderBinder(private val itemStore: ItemStore) {
                     true
                 } else false
             }
+            onEditStateChanged(true)
         }
 
         // Paste last-removed item as child of current root page

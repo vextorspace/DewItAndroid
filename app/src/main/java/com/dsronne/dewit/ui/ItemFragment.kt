@@ -98,6 +98,8 @@ class ItemFragment : Fragment() {
     private fun renderCurrentItem() {
         ensureLabelRestored()
         binding.textLabel.text = currentItem.label()
+        binding.textLabel.visibility = View.GONE
+        binding.breadcrumbViewHeader.visibility = View.VISIBLE
         val targetId = currentItem.id
         rootHeaderBinder?.bind(
             buttonAdd = binding.buttonAddChild,
@@ -118,11 +120,20 @@ class ItemFragment : Fragment() {
             },
             onRemoved = {
                 (activity as? RootPagerController)?.onRootChildRemoved(targetId)
+            },
+            onEditStateChanged = { editing ->
+                binding.breadcrumbViewHeader.visibility = if (editing) View.GONE else View.VISIBLE
+                binding.textLabel.visibility = if (editing) View.VISIBLE else View.GONE
             }
         )
         val breadcrumb = findBreadcrumbPath()
-        val displayBreadcrumb = breadcrumb.drop(1)
-        binding.breadcrumbView.render(displayBreadcrumb) { showItem(it) }
+        val rootId = itemStore.root().id
+        val displayBreadcrumb = breadcrumb.drop(1).let {
+            if (it.isEmpty()) {
+                if (currentItem.id == rootId) emptyList() else listOf(currentItem)
+            } else it
+        }
+        binding.breadcrumbViewHeader.render(displayBreadcrumb) { showItem(it) }
         bindWorkflowSpinner(breadcrumb)
         refreshChildren()
         triggerPendingHeaderEdit()
@@ -157,6 +168,8 @@ class ItemFragment : Fragment() {
             val targetIndex = labelInsertionIndex.coerceIn(0, container.childCount)
             container.addView(binding.textLabel, targetIndex)
         }
+        binding.textLabel.visibility = View.GONE
+        binding.breadcrumbViewHeader.visibility = View.VISIBLE
     }
 
     private fun findBreadcrumbPath(): List<ListItem> {

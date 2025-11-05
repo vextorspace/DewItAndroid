@@ -12,13 +12,24 @@
         android:orientation="horizontal"
         android:gravity="center_vertical">
 
-        <TextView
-            android:id="@+id/text_label"
+        <FrameLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textSize="24sp"
-            android:textStyle="bold" />
+            android:layout_weight="1">
+
+            <com.dsronne.dewit.ui.BreadcrumbTrailView
+                android:id="@+id/breadcrumb_view_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/text_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+        </FrameLayout>
 
         <ImageButton
             android:id="@+id/button_add_child"
@@ -61,13 +72,6 @@
             android:spinnerMode="dropdown"
             android:visibility="gone" />
     </LinearLayout>
-
-    <com.dsronne.dewit.ui.BreadcrumbTrailView
-        android:id="@+id/breadcrumb_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:paddingBottom="8dp" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/children_container"
