@@ -12,4 +12,5 @@
     <string name="cancel">Cancel</string>
     <string name="item_content_hint">Add notes</string>
     <string name="add_text">Add Text</string>
+    <string name="remove_child">Remove Child</string>
 </resources>

@@ -86,9 +86,14 @@ class ItemFragment : Fragment() {
 
     private fun bindRootView() {
         binding.childrenContainer.layoutManager = LinearLayoutManager(context)
-        childrenAdapter = ChildrenAdapter { child ->
-            showItem(child)
-        }
+        childrenAdapter = ChildrenAdapter(
+            onChildClicked = { child ->
+                showItem(child)
+            },
+            onChildRemoved = { child ->
+                removeChild(child)
+            }
+        )
         binding.childrenContainer.adapter = childrenAdapter
         headerContainer = (binding.textLabel.parent as? ViewGroup)?.also { parent ->
             labelInsertionIndex = parent.indexOfChild(binding.textLabel).coerceAtLeast(0)
@@ -321,6 +326,14 @@ class ItemFragment : Fragment() {
         _binding?.editItemContent?.post {
             _binding?.editItemContent?.requestFocus()
         }
+    }
+
+    private fun removeChild(child: ListItem) {
+        commitContentChanges()
+        if (!currentItem.children.remove(child.id)) {
+            return
+        }
+        itemStore.edit(currentItem)
     }
 
     private fun triggerPendingHeaderEdit() {
