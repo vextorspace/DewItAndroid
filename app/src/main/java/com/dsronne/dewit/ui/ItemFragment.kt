@@ -228,6 +228,9 @@ class ItemFragment : Fragment() {
         workflowSpinnerBinder.bind(
             spinner = binding.spinnerWorkflowsCurrent,
             breadcrumb = breadcrumb,
+            onNavigateToTopLevel = { topLevelId ->
+                (activity as? RootPagerController)?.navigateToTopLevel(topLevelId)
+            },
             onApplied = { renderCurrentItem() }
         )
     }

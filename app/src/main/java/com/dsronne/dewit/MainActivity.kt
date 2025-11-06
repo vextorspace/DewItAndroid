@@ -82,6 +82,22 @@ class MainActivity : AppCompatActivity(), ItemStoreProvider, RootPagerController
         }
     }
 
+    override fun navigateToTopLevel(itemId: ItemId) {
+        viewPager.post {
+            val currentIndex = pagerAdapter.indexOf(itemId)
+            if (currentIndex != -1) {
+                viewPager.setCurrentItem(currentIndex, false)
+                return@post
+            }
+            val refreshedItems = itemStore.getChildrenOf(itemStore.root().id)
+            pagerAdapter.submitItems(refreshedItems)
+            val refreshedIndex = pagerAdapter.indexOf(itemId)
+            if (refreshedIndex != -1) {
+                viewPager.setCurrentItem(refreshedIndex, false)
+            }
+        }
+    }
+
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main_toolbar, menu)
         return true

@@ -118,8 +118,37 @@ class ItemStore(
         listeners.remove(listener)
     }
 
+    fun findPathTo(target: ItemId): List<ListItem>? {
+        val root = root()
+        val visited = mutableSetOf<ItemId>()
+        val path = mutableListOf<ListItem>()
+        return findPathRecursive(root, target, visited, path)
+    }
+
     private fun notifyChanged() {
         val snapshot = listeners.toList()
         snapshot.forEach { it.invoke() }
+    }
+
+    private fun findPathRecursive(
+        node: ListItem,
+        target: ItemId,
+        visited: MutableSet<ItemId>,
+        path: MutableList<ListItem>
+    ): List<ListItem>? {
+        if (!visited.add(node.id)) return null
+        path.add(node)
+        if (node.id == target) {
+            return path.toList()
+        }
+        getChildrenOf(node.id).forEach { child ->
+            val result = findPathRecursive(child, target, visited, path)
+            if (result != null) {
+                return result
+            }
+        }
+        path.removeAt(path.lastIndex)
+        visited.remove(node.id)
+        return null
     }
 }

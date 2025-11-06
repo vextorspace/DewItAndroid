@@ -6,8 +6,10 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
 import com.dsronne.dewit.R
+import com.dsronne.dewit.datamodel.ItemId
 import com.dsronne.dewit.datamodel.ListItem
 import com.dsronne.dewit.datamodel.Path
+import com.dsronne.dewit.datamodel.CopyWorkflow
 import com.dsronne.dewit.storage.ItemStore
 
 /**
@@ -19,6 +21,7 @@ class WorkflowSpinnerBinder(private val itemStore: ItemStore) {
     fun bind(
         spinner: Spinner,
         breadcrumb: List<ListItem>,
+        onNavigateToTopLevel: (ItemId) -> Unit,
         onApplied: () -> Unit
     ) {
         if (breadcrumb.size <= 2) {
@@ -55,6 +58,11 @@ class WorkflowSpinnerBinder(private val itemStore: ItemStore) {
                 lastPos = position
                 val workflow = workflows[position - 1]
                 if (workflow.apply(itemStore, parentId, currentItem)) {
+                    val destinationId = (workflow as? CopyWorkflow)?.targetId
+                    val topLevelId = destinationId?.let { findTopLevelFor(it, currentItem.id) }
+                    if (topLevelId != null) {
+                        onNavigateToTopLevel(topLevelId)
+                    }
                     onApplied()
                     spinner.setSelection(0)
                 }
@@ -79,5 +87,24 @@ class WorkflowSpinnerBinder(private val itemStore: ItemStore) {
         spinner.visibility = View.GONE
         spinner.adapter = null
         spinner.onItemSelectedListener = null
+    }
+
+    private fun findTopLevelFor(targetId: ItemId, itemId: ItemId): ItemId? {
+        val path = itemStore.findPathTo(targetId)
+        val rootId = itemStore.root().id
+        if (path != null) {
+            return when {
+                path.size >= 2 -> path[1].id
+                path.isNotEmpty() && path.first().id == rootId -> itemId
+                path.isNotEmpty() -> path.first().id
+                else -> null
+            }
+        }
+        val itemPath = itemStore.findPathTo(itemId) ?: return null
+        return when {
+            itemPath.size >= 2 -> itemPath[1].id
+            itemPath.isNotEmpty() -> itemPath.first().id
+            else -> null
+        }
     }
 }
