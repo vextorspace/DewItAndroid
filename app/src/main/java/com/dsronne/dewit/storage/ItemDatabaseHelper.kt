@@ -9,7 +9,8 @@ internal class ItemDatabaseHelper(context: Context) : SQLiteOpenHelper(context, 
         db.execSQL(
             "CREATE TABLE $TABLE_ITEMS (" +
                     "$COL_ID TEXT PRIMARY KEY, " +
-                    "$COL_LABEL TEXT NOT NULL" +
+                    "$COL_LABEL TEXT NOT NULL, " +
+                    "$COL_CONTENT TEXT" +
                     ")"
         )
         db.execSQL(
@@ -42,11 +43,12 @@ internal class ItemDatabaseHelper(context: Context) : SQLiteOpenHelper(context, 
 
     companion object {
         private const val DATABASE_NAME = "items.db"
-        private const val DATABASE_VERSION = 3
+        private const val DATABASE_VERSION = 4
 
         const val TABLE_ITEMS = "items"
         const val COL_ID = "id"
         const val COL_LABEL = "label"
+        const val COL_CONTENT = "content"
 
         const val TABLE_CHILDREN = "item_children"
         const val COL_PARENT_ID = "parent_id"

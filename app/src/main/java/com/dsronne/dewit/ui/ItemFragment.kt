@@ -230,10 +230,16 @@ class ItemFragment : Fragment() {
     private fun bindContentEditor(breadcrumb: List<ListItem>, rootId: ItemId) {
         val binding = _binding ?: return
         val editor = binding.editItemContent
+        val addButton = binding.buttonAddItemContent
         val isDirectChildOfRoot = breadcrumb.size == 2 && breadcrumb.firstOrNull()?.id == rootId
+        val isRoot = currentItem.id == rootId
+        val eligibleForContent = !isRoot && !isDirectChildOfRoot
         val textItem = currentItem.data as? TextItem
 
-        if (currentItem.hasContent && textItem != null && currentItem.id != rootId && !isDirectChildOfRoot) {
+        val showEditor = eligibleForContent && textItem != null
+        val showAddButton = eligibleForContent && textItem == null
+
+        if (showEditor && textItem != null) {
             contentTextWatcher?.let { editor.removeTextChangedListener(it) }
             editor.onFocusChangeListener = null
             val contentValue = textItem.content
@@ -255,6 +261,8 @@ class ItemFragment : Fragment() {
                 }
             }
             editor.visibility = View.VISIBLE
+            addButton.visibility = View.GONE
+            addButton.setOnClickListener(null)
         } else {
             contentTextWatcher?.let { editor.removeTextChangedListener(it) }
             contentTextWatcher = null
@@ -269,6 +277,15 @@ class ItemFragment : Fragment() {
             }
             editor.visibility = View.GONE
             isContentDirty = false
+            if (showAddButton) {
+                addButton.visibility = View.VISIBLE
+                addButton.setOnClickListener {
+                    promoteToTextItem()
+                }
+            } else {
+                addButton.visibility = View.GONE
+                addButton.setOnClickListener(null)
+            }
         }
     }
 
@@ -286,6 +303,24 @@ class ItemFragment : Fragment() {
         }
         itemStore.edit(currentItem)
         isContentDirty = false
+    }
+
+    private fun promoteToTextItem() {
+        val existingData = currentItem.data
+        if (existingData is TextItem) return
+        val replacement = TextItem(
+            label = existingData.label,
+            content = "",
+            id = existingData.id
+        ).apply {
+            workflows.addAll(existingData.workflows)
+        }
+        currentItem.data = replacement
+        itemStore.edit(currentItem)
+        renderCurrentItem()
+        _binding?.editItemContent?.post {
+            _binding?.editItemContent?.requestFocus()
+        }
     }
 
     private fun triggerPendingHeaderEdit() {

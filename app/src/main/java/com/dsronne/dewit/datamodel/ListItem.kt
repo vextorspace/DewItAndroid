@@ -5,7 +5,7 @@ package com.dsronne.dewit.datamodel
  * By default, the item data has a label of "new item".
  */
 data class ListItem(
-    val data: Item = Item("new item")
+    var data: Item = Item("new item")
 ) {
     fun label(): String = data.label
 

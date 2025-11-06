@@ -5,10 +5,11 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import androidx.core.database.sqlite.transaction
 import com.dsronne.dewit.datamodel.ItemId
-import com.dsronne.dewit.datamodel.ListItem
 import com.dsronne.dewit.datamodel.Item
+import com.dsronne.dewit.datamodel.ListItem
 import com.dsronne.dewit.datamodel.CopyWorkflow
 import com.dsronne.dewit.datamodel.MoveWorkflow
+import com.dsronne.dewit.datamodel.TextItem
 import com.dsronne.dewit.domain.ports.ItemRepository
 
 class SqliteItemRepository(context: Context) : ItemRepository {
@@ -20,6 +21,11 @@ class SqliteItemRepository(context: Context) : ItemRepository {
             val values = ContentValues().apply {
                 put(ItemDatabaseHelper.COL_ID, item.id.id)
                 put(ItemDatabaseHelper.COL_LABEL, item.label())
+                val data = item.data
+                when (data) {
+                    is TextItem -> put(ItemDatabaseHelper.COL_CONTENT, data.content)
+                    else -> putNull(ItemDatabaseHelper.COL_CONTENT)
+                }
             }
             insertWithOnConflict(
                 ItemDatabaseHelper.TABLE_ITEMS,
@@ -79,12 +85,19 @@ class SqliteItemRepository(context: Context) : ItemRepository {
     override fun find(id: ItemId): ListItem? {
         val db = dbHelper.readableDatabase
         db.rawQuery(
-            "SELECT ${ItemDatabaseHelper.COL_LABEL} FROM ${ItemDatabaseHelper.TABLE_ITEMS} WHERE ${ItemDatabaseHelper.COL_ID} = ?",
+            "SELECT ${ItemDatabaseHelper.COL_LABEL}, ${ItemDatabaseHelper.COL_CONTENT} FROM ${ItemDatabaseHelper.TABLE_ITEMS} WHERE ${ItemDatabaseHelper.COL_ID} = ?",
             arrayOf(id.id)
         ).use { cursor ->
             if (!cursor.moveToFirst()) return null
             val label = cursor.getString(cursor.getColumnIndexOrThrow(ItemDatabaseHelper.COL_LABEL))
-            val item = ListItem(Item(label, ItemId(id.id)))
+            val contentIndex = cursor.getColumnIndexOrThrow(ItemDatabaseHelper.COL_CONTENT)
+            val baseItem = if (!cursor.isNull(contentIndex)) {
+                val content = cursor.getString(contentIndex)
+                TextItem(label, content, ItemId(id.id))
+            } else {
+                Item(label, ItemId(id.id))
+            }
+            val item = ListItem(baseItem)
             db.rawQuery(
                 "SELECT ${ItemDatabaseHelper.COL_CHILD_ID} FROM ${ItemDatabaseHelper.TABLE_CHILDREN} " +
                         "WHERE ${ItemDatabaseHelper.COL_PARENT_ID} = ? ORDER BY ${ItemDatabaseHelper.COL_POSITION} ASC",
@@ -126,15 +139,22 @@ class SqliteItemRepository(context: Context) : ItemRepository {
         val db = dbHelper.readableDatabase
         val items = mutableListOf<ListItem>()
         db.rawQuery(
-            "SELECT ${ItemDatabaseHelper.COL_ID}, ${ItemDatabaseHelper.COL_LABEL} FROM ${ItemDatabaseHelper.TABLE_ITEMS}",
+            "SELECT ${ItemDatabaseHelper.COL_ID}, ${ItemDatabaseHelper.COL_LABEL}, ${ItemDatabaseHelper.COL_CONTENT} FROM ${ItemDatabaseHelper.TABLE_ITEMS}",
             null
         ).use { cursor ->
             val idIndex = cursor.getColumnIndexOrThrow(ItemDatabaseHelper.COL_ID)
             val labelIndex = cursor.getColumnIndexOrThrow(ItemDatabaseHelper.COL_LABEL)
+            val contentIndex = cursor.getColumnIndexOrThrow(ItemDatabaseHelper.COL_CONTENT)
             while (cursor.moveToNext()) {
                 val id = cursor.getString(idIndex)
                 val label = cursor.getString(labelIndex)
-                items.add(ListItem(Item(label, ItemId(id))))
+                val baseItem = if (!cursor.isNull(contentIndex)) {
+                    val content = cursor.getString(contentIndex)
+                    TextItem(label, content, ItemId(id))
+                } else {
+                    Item(label, ItemId(id))
+                }
+                items.add(ListItem(baseItem))
             }
         }
         items.forEach { item ->
