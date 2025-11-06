@@ -43,12 +43,14 @@ class ListItemTest : FunSpec({
     }
 
     test ("if item is regular item hascontent is false") {
-        val ListItem = ListItem(Item("test"))
-        ListItem.hasContent.shouldBeFalse();
+        ListItem(Item("test"))
+            .hasContent
+            .shouldBeFalse();
     }
 
     test("if item is text item hascontent is true") {
-        val ListItem = ListItem(TextItem("test", "content"))
-        ListItem.hasContent.shouldBeTrue();
+        ListItem(TextItem("test", "content"))
+            .hasContent
+            .shouldBeTrue();
     }
 })
