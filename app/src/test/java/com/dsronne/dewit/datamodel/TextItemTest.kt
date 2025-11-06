@@ -18,4 +18,11 @@ class TextItemTest: FunSpec({
         item.id shouldBe textItem.id
     }
 
+    test("created from plain item has same label and id") {
+        val item = Item("Test Item")
+        val textItem = TextItem(item)
+        textItem.label shouldBe item.label
+        textItem.id shouldBe item.id
+    }
+
 })

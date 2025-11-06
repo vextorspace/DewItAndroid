@@ -5,11 +5,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.text.TextWatcher
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.core.widget.doAfterTextChanged
 import com.dsronne.dewit.databinding.FragmentItemBinding
 import com.dsronne.dewit.datamodel.ItemId
 import com.dsronne.dewit.datamodel.ListItem
+import com.dsronne.dewit.datamodel.TextItem
 import com.dsronne.dewit.storage.ItemStore
 import com.dsronne.dewit.ui.actions.RootHeaderBinder
 import com.dsronne.dewit.ui.actions.workflow.WorkflowSpinnerBinder
@@ -30,6 +33,9 @@ class ItemFragment : Fragment() {
     private var headerContainer: ViewGroup? = null
     private var labelInsertionIndex: Int = -1
     private var pendingHeaderEdit: Boolean = false
+    private var contentTextWatcher: TextWatcher? = null
+    private var suppressContentUpdate: Boolean = false
+    private var isContentDirty: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,6 +78,7 @@ class ItemFragment : Fragment() {
     }
 
     override fun onStop() {
+        commitContentChanges()
         super.onStop()
         changeListener?.let { itemStore.removeChangeListener(it) }
         changeListener = null
@@ -91,6 +98,12 @@ class ItemFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        val binding = _binding
+        binding?.let {
+            contentTextWatcher?.let { watcher -> it.editItemContent.removeTextChangedListener(watcher) }
+            it.editItemContent.onFocusChangeListener = null
+        }
+        contentTextWatcher = null
         super.onDestroyView()
         _binding = null
     }
@@ -135,6 +148,7 @@ class ItemFragment : Fragment() {
         }
         binding.breadcrumbViewHeader.render(displayBreadcrumb) { showItem(it) }
         bindWorkflowSpinner(breadcrumb)
+        bindContentEditor(breadcrumb, rootId)
         refreshChildren()
         triggerPendingHeaderEdit()
     }
@@ -149,6 +163,7 @@ class ItemFragment : Fragment() {
     }
 
     private fun showItem(item: ListItem) {
+        commitContentChanges()
         currentItem = item
         renderCurrentItem()
     }
@@ -210,6 +225,67 @@ class ItemFragment : Fragment() {
             breadcrumb = breadcrumb,
             onApplied = { renderCurrentItem() }
         )
+    }
+
+    private fun bindContentEditor(breadcrumb: List<ListItem>, rootId: ItemId) {
+        val binding = _binding ?: return
+        val editor = binding.editItemContent
+        val isDirectChildOfRoot = breadcrumb.size == 2 && breadcrumb.firstOrNull()?.id == rootId
+        val textItem = currentItem.data as? TextItem
+
+        if (currentItem.hasContent && textItem != null && currentItem.id != rootId && !isDirectChildOfRoot) {
+            contentTextWatcher?.let { editor.removeTextChangedListener(it) }
+            editor.onFocusChangeListener = null
+            val contentValue = textItem.content
+            if (editor.text.toString() != contentValue) {
+                suppressContentUpdate = true
+                editor.setText(contentValue)
+                editor.setSelection(contentValue.length.coerceAtMost(editor.text.length))
+                suppressContentUpdate = false
+            }
+            isContentDirty = false
+            contentTextWatcher = editor.doAfterTextChanged { editable ->
+                if (suppressContentUpdate) return@doAfterTextChanged
+                textItem.content = editable?.toString().orEmpty()
+                isContentDirty = true
+            }
+            editor.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
+                if (!hasFocus) {
+                    commitContentChanges()
+                }
+            }
+            editor.visibility = View.VISIBLE
+        } else {
+            contentTextWatcher?.let { editor.removeTextChangedListener(it) }
+            contentTextWatcher = null
+            editor.onFocusChangeListener = null
+            if (editor.visibility == View.VISIBLE) {
+                editor.clearFocus()
+            }
+            if (editor.text.isNotEmpty()) {
+                suppressContentUpdate = true
+                editor.text.clear()
+                suppressContentUpdate = false
+            }
+            editor.visibility = View.GONE
+            isContentDirty = false
+        }
+    }
+
+    private fun commitContentChanges() {
+        val binding = _binding ?: return
+        if (!currentItem.hasContent || binding.editItemContent.visibility != View.VISIBLE) {
+            isContentDirty = false
+            return
+        }
+        if (!isContentDirty) return
+        val textItem = currentItem.data as? TextItem ?: return
+        val latestContent = binding.editItemContent.text?.toString().orEmpty()
+        if (textItem.content != latestContent) {
+            textItem.content = latestContent
+        }
+        itemStore.edit(currentItem)
+        isContentDirty = false
     }
 
     private fun triggerPendingHeaderEdit() {

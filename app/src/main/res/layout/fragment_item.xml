@@ -73,6 +73,17 @@
             android:visibility="gone" />
     </LinearLayout>
 
+    <EditText
+        android:id="@+id/edit_item_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:gravity="top|start"
+        android:hint="@string/item_content_hint"
+        android:inputType="textMultiLine"
+        android:minLines="3"
+        android:visibility="gone" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/children_container"
         android:layout_width="match_parent"
