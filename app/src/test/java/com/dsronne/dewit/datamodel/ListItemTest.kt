@@ -1,6 +1,8 @@
 package com.dsronne.dewit.datamodel
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.booleans.shouldBeFalse
+import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
@@ -38,5 +40,15 @@ class ListItemTest : FunSpec({
         val item = Item("test")
         val listItem = ListItem(item)
         listItem.id shouldBe item.id
+    }
+
+    test ("if item is regular item hascontent is false") {
+        val ListItem = ListItem(Item("test"))
+        ListItem.hasContent.shouldBeFalse();
+    }
+
+    test("if item is text item hascontent is true") {
+        val ListItem = ListItem(TextItem("test", "content"))
+        ListItem.hasContent.shouldBeTrue();
     }
 })

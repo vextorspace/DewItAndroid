@@ -9,6 +9,8 @@ data class ListItem(
 ) {
     fun label(): String = data.label
 
+    val hasContent: Boolean get() = data is TextItem
+
     val id: ItemId
         get() = data.id
 
