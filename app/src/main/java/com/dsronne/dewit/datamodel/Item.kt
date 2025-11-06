@@ -13,7 +13,7 @@ package com.dsronne.dewit.datamodel
  * By default, each instance is assigned a random UUID.
  * Two items are considered equal if they share the same identifier.
  */
-data class Item(
+open class Item(
     var label: String,
     val id: ItemId = ItemId(),
     val workflows: MutableList<Workflow> = mutableListOf()
