@@ -9,4 +9,13 @@ class TextItemTest: FunSpec({
         item.content shouldBe ""
     }
 
+    test("TextItem with content can act as Item") {
+        val textItem = TextItem("Test Item", content = "Test Content");
+        textItem.content shouldBe "Test Content"
+
+        val item = textItem as Item
+        item.label shouldBe textItem.label
+        item.id shouldBe textItem.id
+    }
+
 })
